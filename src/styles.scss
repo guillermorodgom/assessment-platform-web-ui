@@ -1,0 +1,46 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: #1a1d23;
+  color: #e4e4e7;
+}
+
+.p-toast {
+  z-index: 10000;
+}
+
+// Dark card overrides
+.p-card {
+  background: #1e2128;
+  border: 1px solid #2d3039;
+}
+
+// Scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1d23;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b3f4a;
+  border-radius: 4px;
+
+  &:hover {
+    background: #4b5060;
+  }
+}
+
+// Link styles
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
