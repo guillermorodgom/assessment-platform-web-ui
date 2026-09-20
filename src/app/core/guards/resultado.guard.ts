@@ -2,12 +2,14 @@ import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { map, catchError, of } from 'rxjs';
 import { IntentoHttpService } from '../services/intento-http.service';
+import { IdObfuscationService } from '../services/id-obfuscation.service';
 import { EstadoIntento } from '../models/enums.model';
 
 export const resultadoGuard: CanActivateFn = (route) => {
   const intentoService = inject(IntentoHttpService);
   const router = inject(Router);
-  const intentoId = Number(route.paramMap.get('intentoId'));
+  const idObfuscation = inject(IdObfuscationService);
+  const intentoId = idObfuscation.decode(route.paramMap.get('intentoId') || '');
 
   if (!intentoId) {
     router.navigate(['/assessments']);

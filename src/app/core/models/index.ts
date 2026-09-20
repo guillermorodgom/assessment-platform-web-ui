@@ -6,3 +6,4 @@ export * from './pregunta.model';
 export * from './intento.model';
 export * from './compiler.model';
 export * from './asignacion.model';
+export * from './candidato.model';

@@ -1,0 +1,127 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div *ngIf="loading" class="flex align-items-center justify-content-center" style="height: 60vh">
+  <i class="pi pi-spin pi-spinner text-4xl"></i>
+</div>
+
+<div *ngIf="!loading" class="exam-container">
+  <!-- Header -->
+  <div class="exam-header" [class.exam-header--critical]="secondsRemaining < 300 && secondsRemaining > 0">
+    <div class="exam-header__left">
+      <h3 class="exam-header__title">{{ intento?.cuestionarioNombre }}</h3>
+      <div class="exam-header__progress-pills">
+        <span class="progress-pill">
+          <i class="pi pi-send"></i>
+          {{ examState.getSubmittedCount() }}/{{ preguntas.length }}
+        </span>
+      </div>
+    </div>
+
+    <div class="exam-header__right">
+      <!-- Pill timer -->
+      <div class="timer-pill"
+           [class.timer-pill--warn]="secondsRemaining < 600 && secondsRemaining >= 300"
+           [class.timer-pill--critical]="secondsRemaining < 300 && secondsRemaining > 0"
+           [class.timer-pill--pulse]="secondsRemaining < 60 && secondsRemaining > 0">
+        <i class="pi pi-clock timer-pill__icon"></i>
+        <span class="timer-pill__time">{{ timerDisplay }}</span>
+        <div class="timer-pill__bar">
+          <div class="timer-pill__bar-fill" [style.width.%]="timerProgress"></div>
+        </div>
+      </div>
+
+      <p-button label="Finalizar" icon="pi pi-check" severity="danger" (onClick)="confirmFinalize()"
+        [loading]="finalizing" [outlined]="true"></p-button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="exam-body">
+    <!-- Sidebar: lista de preguntas -->
+    <div class="sidebar-preguntas" [class.sidebar-preguntas--collapsed]="sidebarCollapsed">
+      <!-- Contenido expandido -->
+      <ng-container *ngIf="!sidebarCollapsed">
+        <div class="sidebar-title">
+          <span>Preguntas</span>
+          <span class="text-500 text-xs">{{ preguntas.length }} total</span>
+        </div>
+        <div class="sidebar-list">
+          <div *ngFor="let p of preguntas; let i = index" class="sidebar-item"
+            [class.sidebar-item--active]="currentIndex === i"
+            [class.sidebar-item--enviada]="getPreguntaStatus(p) === 'Enviada'" (click)="selectPregunta(i)">
+            <div class="flex align-items-center gap-2" style="min-width: 0">
+              <span class="sidebar-item__number">{{ i + 1 }}</span>
+              <i [class]="getPreguntaIcon(p)" class="text-xs" style="flex-shrink: 0"></i>
+              <span class="sidebar-item__title">{{ p.titulo }}</span>
+            </div>
+            <p-tag [value]="getPreguntaStatus(p)" [severity]="getPreguntaStatusSeverity(p)" styleClass="text-xs"
+              [rounded]="true"></p-tag>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Contenido colapsado: solo numeros -->
+      <ng-container *ngIf="sidebarCollapsed">
+        <div class="sidebar-collapsed-list">
+          <div *ngFor="let p of preguntas; let i = index"
+            class="sidebar-collapsed-item"
+            [class.sidebar-collapsed-item--active]="currentIndex === i"
+            [class.sidebar-collapsed-item--enviada]="getPreguntaStatus(p) === 'Enviada'"
+            (click)="selectPregunta(i)"
+            [pTooltip]="p.titulo" tooltipPosition="right">
+            <span class="sidebar-item__number">{{ i + 1 }}</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Boton toggle -->
+      <div class="sidebar-toggle" (click)="toggleSidebar()">
+        <i class="pi" [class.pi-chevron-left]="!sidebarCollapsed" [class.pi-chevron-right]="sidebarCollapsed"></i>
+      </div>
+    </div>
+
+    <!-- Main: pregunta actual -->
+    <div class="main-panel">
+      <!-- Navegacion superior -->
+      <div class="question-nav">
+        <div class="flex align-items-center gap-2">
+          <span class="text-500 text-sm">Pregunta {{ currentIndex + 1 }} de {{ preguntas.length }}</span>
+          <span class="text-500 text-sm">—</span>
+          <span class="text-sm" style="color: #a1a1aa">
+            <i [class]="currentPregunta ? getPreguntaIcon(currentPregunta) : ''" class="mr-1"></i>
+            {{ currentPregunta?.tipoPregunta === TipoPregunta.CODIGO ? 'Codigo' : 'Seleccion' }}
+          </span>
+        </div>
+        <div class="flex gap-2">
+          <p-button icon="pi pi-chevron-left" [text]="true" [rounded]="true" (onClick)="prevPregunta()"
+            [disabled]="isFirst" pTooltip="Anterior" tooltipPosition="bottom"></p-button>
+          <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" (onClick)="nextPregunta()"
+            [disabled]="isLast" pTooltip="Siguiente" tooltipPosition="bottom"></p-button>
+        </div>
+      </div>
+
+      <!-- Contenido de la pregunta -->
+      <div class="question-content">
+        <div *ngIf="currentPregunta">
+          <app-pregunta-codigo *ngIf="currentPregunta.tipoPregunta === TipoPregunta.CODIGO"
+            [pregunta]="currentPregunta" [intentoId]="intentoId">
+          </app-pregunta-codigo>
+
+          <app-pregunta-opcion *ngIf="currentPregunta.tipoPregunta !== TipoPregunta.CODIGO"
+            [pregunta]="currentPregunta" [intentoId]="intentoId">
+          </app-pregunta-opcion>
+        </div>
+      </div>
+
+      <!-- Navegacion inferior -->
+      <div class="question-nav-bottom">
+        <p-button label="Anterior" icon="pi pi-chevron-left" [text]="true" (onClick)="prevPregunta()"
+          [disabled]="isFirst"></p-button>
+        <span class="text-500 text-sm">{{ currentIndex + 1 }} / {{ preguntas.length }}</span>
+        <p-button label="Siguiente" icon="pi pi-chevron-right" iconPos="right" [text]="true"
+          (onClick)="nextPregunta()" [disabled]="isLast"></p-button>
+      </div>
+    </div>
+  </div>
+</div>

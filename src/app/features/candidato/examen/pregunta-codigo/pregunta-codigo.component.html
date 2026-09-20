@@ -1,0 +1,89 @@
+<p-toast></p-toast>
+
+<!-- Question Statement — hero block -->
+<div class="enunciado-block">
+  <div class="enunciado-header">
+    <div class="enunciado-badge enunciado-badge--code">
+      <i class="pi pi-code"></i>
+      <span>Codigo</span>
+    </div>
+    <div class="enunciado-meta">
+      <p-tag *ngIf="submitted" value="Enviada" severity="success" [rounded]="true" icon="pi pi-check"></p-tag>
+      <span class="enunciado-points">{{ pregunta.puntaje }} pts</span>
+    </div>
+  </div>
+  <h2 class="enunciado-titulo">{{ pregunta.titulo }}</h2>
+  <p *ngIf="pregunta.descripcion" class="enunciado-descripcion">{{ pregunta.descripcion }}</p>
+  <div *ngIf="pregunta.casosDePrueba?.length" class="enunciado-cases">
+    <i class="pi pi-check-circle"></i>
+    <span>{{ pregunta.casosDePrueba.length }} caso{{ pregunta.casosDePrueba.length > 1 ? 's' : '' }} de prueba</span>
+  </div>
+</div>
+
+<!-- Editor area -->
+<div class="code-workspace">
+  <!-- Language selector + actions -->
+  <div class="code-toolbar">
+    <p-dropdown [options]="lenguajeOptions" [(ngModel)]="selectedLanguage"
+                (onChange)="onLanguageChange()" [style]="{ width: '180px' }"></p-dropdown>
+    <div class="flex gap-2">
+      <p-button label="Ejecutar" icon="pi pi-play" severity="info"
+                (onClick)="ejecutar()" [loading]="executing" [disabled]="submitted"></p-button>
+      <p-button label="Enviar Respuesta" icon="pi pi-send"
+                (onClick)="enviarRespuesta()" [loading]="submitting" [disabled]="submitted"></p-button>
+    </div>
+  </div>
+
+  <!-- Monaco Editor -->
+  <div class="editor-frame">
+    <ngx-monaco-editor
+      *ngIf="editorReady"
+      [options]="editorOptions"
+      [(ngModel)]="code"
+      (ngModelChange)="onCodeChange()"
+      (onInit)="onEditorInit($event)"
+      style="height: 100%; display: block">
+    </ngx-monaco-editor>
+  </div>
+
+  <!-- Output tabs -->
+  <p-tabView [(activeIndex)]="activeTabIndex" styleClass="mt-3">
+    <p-tabPanel header="Consola">
+      <div class="console-output">
+        <span *ngIf="consoleOutput" style="color: #4ec9b0">{{ consoleOutput }}</span>
+        <span *ngIf="consoleError" style="color: #f44747">{{ consoleError }}</span>
+        <span *ngIf="!consoleOutput && !consoleError" class="console-placeholder">Ejecuta tu codigo para ver la salida aqui...</span>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel header="Casos de Prueba" *ngIf="pregunta.casosDePrueba?.length">
+      <div *ngIf="testResults.length === 0" class="text-500 p-3">
+        Ejecuta tu codigo para ver los resultados de los casos de prueba.
+      </div>
+
+      <div *ngFor="let tr of testResults; let i = index"
+           class="test-case-result">
+        <div class="flex align-items-center justify-content-between mb-2">
+          <span class="font-semibold text-sm">Caso {{ i + 1 }}</span>
+          <p-tag [value]="tr.passed ? 'Passed' : 'Failed'"
+                 [severity]="tr.passed ? 'success' : 'danger'"
+                 [rounded]="true"></p-tag>
+        </div>
+        <div class="grid text-sm" style="font-family: monospace">
+          <div class="col-4">
+            <div class="text-500 mb-1">Input</div>
+            <div style="color: #e4e4e7">{{ tr.input || '(vacio)' }}</div>
+          </div>
+          <div class="col-4">
+            <div class="text-500 mb-1">Esperado</div>
+            <div style="color: #e4e4e7">{{ tr.expectedOutput }}</div>
+          </div>
+          <div class="col-4">
+            <div class="text-500 mb-1">Obtenido</div>
+            <div [style.color]="tr.passed ? '#4ec9b0' : '#f44747'">{{ tr.actualOutput || '(vacio)' }}</div>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</div>

@@ -1,0 +1,47 @@
+@import '../pregunta-shared';
+
+.code-workspace {
+  margin-top: 1rem;
+}
+
+.code-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.editor-frame {
+  height: 350px;
+  border: 1px solid #2d3039;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+// Separar tabs (Consola / Casos de Prueba)
+:host ::ng-deep .p-tabview .p-tabview-nav li + li {
+  margin-left: 0.5rem;
+}
+
+.console-output {
+  background: #111318;
+  border-radius: 8px;
+  padding: 1rem;
+  min-height: 100px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.console-placeholder {
+  color: #4a4f5c;
+}
+
+.test-case-result {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  background: #1a1d23;
+  border: 1px solid #2d3039;
+}

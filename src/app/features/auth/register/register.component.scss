@@ -86,7 +86,6 @@
     }
   }
 
-  // Input overrides for dark theme
   ::ng-deep {
     .p-inputtext {
       background: #1a1d23;
@@ -109,7 +108,6 @@
   }
 }
 
-// Button override
 ::ng-deep .auth-btn.p-button {
   margin-top: 0.35rem;
   background: linear-gradient(135deg, var(--primary-color), #818cf8);

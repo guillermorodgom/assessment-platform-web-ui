@@ -1,0 +1,54 @@
+<p-toast></p-toast>
+
+<!-- Question Statement — hero block -->
+<div class="enunciado-block">
+  <div class="enunciado-header">
+    <div class="enunciado-badge">
+      <i class="pi pi-check-square"></i>
+      <span>{{ isUnica() ? 'Seleccion unica' : 'Seleccion multiple' }}</span>
+    </div>
+    <div class="enunciado-meta">
+      <p-tag *ngIf="submitted" value="Enviada" severity="success" [rounded]="true" icon="pi pi-check"></p-tag>
+      <span class="enunciado-points">{{ pregunta.puntaje }} pts</span>
+    </div>
+  </div>
+  <h2 class="enunciado-titulo">{{ pregunta.titulo }}</h2>
+  <p *ngIf="pregunta.descripcion" class="enunciado-descripcion">{{ pregunta.descripcion }}</p>
+</div>
+
+<!-- Options -->
+<div class="opciones-container">
+  <!-- Opcion Unica -->
+  <div *ngIf="isUnica()" class="flex flex-column gap-2">
+    <div *ngFor="let op of pregunta.opciones; let i = index"
+         class="opcion-item" [class.opcion-item--selected]="selectedSingle === op.id"
+         [class.opcion-item--disabled]="submitted">
+      <p-radioButton [name]="'pregunta_' + pregunta.id" [value]="op.id"
+                     [(ngModel)]="selectedSingle" (ngModelChange)="onSelectionChange()"
+                     [disabled]="submitted"></p-radioButton>
+      <span class="opcion-label">{{ op.texto }}</span>
+      <span class="opcion-letter">{{ getLetter(i) }}</span>
+    </div>
+  </div>
+
+  <!-- Opcion Multiple -->
+  <div *ngIf="!isUnica()" class="flex flex-column gap-2">
+    <div *ngFor="let op of pregunta.opciones; let i = index"
+         class="opcion-item" [class.opcion-item--selected]="selectedMultiple.includes(op.id)"
+         [class.opcion-item--disabled]="submitted">
+      <p-checkbox [value]="op.id" [(ngModel)]="selectedMultiple"
+                  (ngModelChange)="onSelectionChange()" [disabled]="submitted"></p-checkbox>
+      <span class="opcion-label">{{ op.texto }}</span>
+      <span class="opcion-letter">{{ getLetter(i) }}</span>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="mt-3 flex align-items-center gap-3">
+    <p-button label="Enviar Respuesta" icon="pi pi-send"
+              (onClick)="enviarRespuesta()" [loading]="submitting" [disabled]="submitted"></p-button>
+    <span *ngIf="!isUnica() && !submitted" class="text-500 text-sm">
+      <i class="pi pi-info-circle mr-1"></i>Puedes seleccionar varias opciones
+    </span>
+  </div>
+</div>

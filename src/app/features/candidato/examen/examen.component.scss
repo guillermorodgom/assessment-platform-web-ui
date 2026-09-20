@@ -1,0 +1,325 @@
+.exam-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// --- Header ---
+.exam-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 1.25rem;
+  background: #1a1d23;
+  border-bottom: 1px solid #2d3039;
+  transition: background 0.4s, border-color 0.4s;
+
+  &--critical {
+    border-bottom-color: rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, #1a1d23 0%, #2a1f1f 100%);
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f0f0f3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+.progress-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  padding: 3px 10px;
+  border-radius: 20px;
+
+  i { font-size: 0.7rem; }
+}
+
+// --- Pill timer ---
+.timer-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  position: relative;
+  overflow: hidden;
+  transition: background 0.4s, border-color 0.4s;
+
+  &__icon {
+    font-size: 1rem;
+    color: #818cf8;
+    transition: color 0.4s;
+  }
+
+  &__time {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #c7c7cc;
+    letter-spacing: 0.5px;
+    transition: color 0.4s;
+  }
+
+  &__bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(99, 102, 241, 0.1);
+  }
+
+  &__bar-fill {
+    height: 100%;
+    background: #818cf8;
+    border-radius: 0 1px 1px 0;
+    transition: width 1s linear, background 0.4s;
+  }
+
+  // --- States ---
+  &--warn {
+    background: rgba(234, 179, 8, 0.08);
+    border-color: rgba(234, 179, 8, 0.18);
+
+    .timer-pill__icon { color: #eab308; }
+    .timer-pill__time { color: #facc15; }
+    .timer-pill__bar-fill { background: #eab308; }
+  }
+
+  &--critical {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+
+    .timer-pill__icon { color: #ef4444; }
+    .timer-pill__time { color: #f87171; }
+    .timer-pill__bar-fill { background: #ef4444; }
+  }
+
+  &--pulse {
+    animation: pill-pulse 1s ease-in-out infinite;
+  }
+}
+
+@keyframes pill-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); }
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+// --- Layout sidebar + main ---
+.exam-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+// --- Sidebar ---
+.sidebar-preguntas {
+  width: 240px;
+  min-width: 240px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #2d3039;
+  background: #1a1d23;
+  transition: width 0.25s ease, min-width 0.25s ease;
+  position: relative;
+
+  &--collapsed {
+    width: 52px;
+    min-width: 52px;
+  }
+}
+
+.sidebar-title {
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #a1a1aa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #2d3039;
+}
+
+.sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-top: 1px solid #2d3039;
+  cursor: pointer;
+  color: #52525b;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #23262e;
+    color: #a1a1aa;
+  }
+}
+
+// --- Sidebar colapsado ---
+.sidebar-collapsed-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sidebar-collapsed-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: transform 0.1s;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  &--active {
+    .sidebar-item__number {
+      background: var(--primary-color);
+      color: white;
+    }
+  }
+
+  &--enviada:not(&--active) {
+    .sidebar-item__number {
+      background: #22c55e;
+      color: white;
+    }
+  }
+}
+
+// --- Sidebar items ---
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.625rem;
+  margin-bottom: 2px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  gap: 0.5rem;
+
+  &:hover:not(&--active) {
+    background: #23262e;
+  }
+
+  &--active {
+    background: rgba(99, 102, 241, 0.15);
+    color: #c7c7ff;
+
+    .sidebar-item__number {
+      background: var(--primary-color);
+      color: white;
+    }
+  }
+
+  &--enviada:not(&--active) {
+    .sidebar-item__number {
+      background: #22c55e;
+      color: white;
+    }
+  }
+
+  &__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: #2d3039;
+    color: #8b8b96;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  &__title {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+}
+
+// --- Main panel ---
+.main-panel {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #13151a;
+}
+
+.question-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #2d3039;
+  flex-shrink: 0;
+}
+
+.question-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.question-nav-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid #2d3039;
+  flex-shrink: 0;
+}
