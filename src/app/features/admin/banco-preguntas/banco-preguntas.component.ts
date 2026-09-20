@@ -13,8 +13,11 @@ import { ToastModule } from 'primeng/toast';
 import { OverlayPanelModule, OverlayPanel } from 'primeng/overlaypanel';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MessageService, MenuItem } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
+import { DialogModule } from 'primeng/dialog';
 import { PreguntaHttpService } from '../../../core/services/pregunta-http.service';
-import { PreguntaResponse } from '../../../core/models';
+import { CuestionarioHttpService } from '../../../core/services/cuestionario-http.service';
+import { PreguntaResponse, CuestionarioSimple, CuestionarioResponse } from '../../../core/models';
 import { TipoPregunta } from '../../../core/models/enums.model';
 
 @Component({
@@ -22,18 +25,25 @@ import { TipoPregunta } from '../../../core/models/enums.model';
   standalone: true,
   imports: [
     CommonModule, FormsModule, RouterModule, TableModule, ToolbarModule, ButtonModule,
-    InputTextModule, TagModule, ChipModule, TooltipModule, ToastModule, OverlayPanelModule, BreadcrumbModule
+    InputTextModule, TagModule, ChipModule, TooltipModule, ToastModule, OverlayPanelModule, BreadcrumbModule,
+    DropdownModule, DialogModule
   ],
   providers: [MessageService],
-  templateUrl: './banco-preguntas.component.html'
+  templateUrl: './banco-preguntas.component.html',
+  styleUrl: './banco-preguntas.component.scss'
 })
 export class BancoPreguntasComponent implements OnInit {
   @ViewChild('langOverlay') langOverlay!: OverlayPanel;
+  @ViewChild('cuestionarioOverlay') cuestionarioOverlay!: OverlayPanel;
   preguntas: PreguntaResponse[] = [];
   filteredPreguntas: PreguntaResponse[] = [];
   loading = true;
   searchText = '';
   selectedLenguajes: string[] = [];
+  selectedCuestionarios: CuestionarioSimple[] = [];
+  crearDialogVisible = false;
+  cuestionarios: CuestionarioResponse[] = [];
+  selectedCuestionarioId: number | null = null;
 
   breadcrumbItems: MenuItem[] = [
     { label: 'Dashboard', routerLink: '/admin' },
@@ -43,7 +53,8 @@ export class BancoPreguntasComponent implements OnInit {
 
   constructor(
     private preguntaService: PreguntaHttpService,
-    private router: Router,
+    private cuestionarioService: CuestionarioHttpService,
+    public router: Router,
     private messageService: MessageService
   ) {}
 
@@ -81,6 +92,31 @@ export class BancoPreguntasComponent implements OnInit {
   showLenguajes(event: Event, lenguajes: string[]): void {
     this.selectedLenguajes = lenguajes;
     this.langOverlay.toggle(event);
+  }
+
+  showCuestionarios(event: Event, cuestionarios: CuestionarioSimple[]): void {
+    this.selectedCuestionarios = cuestionarios;
+    this.cuestionarioOverlay.toggle(event);
+  }
+
+  openCrearDialog(): void {
+    this.selectedCuestionarioId = null;
+    this.cuestionarioService.getAll().subscribe({
+      next: data => {
+        this.cuestionarios = data;
+        this.crearDialogVisible = true;
+      },
+      error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los cuestionarios' })
+    });
+  }
+
+  navegarACrear(): void {
+    if (this.selectedCuestionarioId) {
+      this.crearDialogVisible = false;
+      this.router.navigate(['/admin/cuestionarios', this.selectedCuestionarioId, 'preguntas'], {
+        queryParams: { crear: true }
+      });
+    }
   }
 
   navigateToCuestionario(p: PreguntaResponse): void {

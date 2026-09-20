@@ -11,6 +11,7 @@ import { ChipModule } from 'primeng/chip';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { IntentoHttpService } from '../../../core/services/intento-http.service';
+import { IdObfuscationService } from '../../../core/services/id-obfuscation.service';
 import { ResultadoIntentoResponse, RespuestaCandidatoResponse, PreguntaResponse } from '../../../core/models';
 import { TipoPregunta } from '../../../core/models/enums.model';
 
@@ -38,11 +39,12 @@ export class ResultadoComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private intentoService: IntentoHttpService
+    private intentoService: IntentoHttpService,
+    private idObfuscation: IdObfuscationService
   ) {}
 
   ngOnInit(): void {
-    const intentoId = Number(this.route.snapshot.paramMap.get('intentoId'));
+    const intentoId = this.idObfuscation.decode(this.route.snapshot.paramMap.get('intentoId') || '') || 0;
 
     this.intentoService.getResultado(intentoId).subscribe({
       next: resultado => {
@@ -92,6 +94,13 @@ export class ResultadoComponent implements OnInit {
     const pregunta = this.preguntas.find(p => p.id === preguntaId);
     const opcion = pregunta?.opciones?.find(o => o.id === opcionId);
     return opcion?.esCorrecta || false;
+  }
+
+  formatTiempo(segundos: number): string {
+    if (!segundos) return '-';
+    const min = Math.floor(segundos / 60);
+    const seg = segundos % 60;
+    return `${min} min ${seg.toString().padStart(2, '0')} seg`;
   }
 
   volver(): void {

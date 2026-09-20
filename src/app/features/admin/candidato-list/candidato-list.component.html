@@ -1,0 +1,109 @@
+<p-toast></p-toast>
+
+<div class="admin-page">
+  <p-breadcrumb [model]="breadcrumbItems" [home]="home"></p-breadcrumb>
+
+  <div class="section-header">
+    <div class="section-icon"><i class="pi pi-id-card"></i></div>
+    <h2 class="section-title">Evaluados</h2>
+    <span class="section-count" *ngIf="!loading">{{ candidatos.length }}</span>
+  </div>
+
+  <div class="admin-toolbar">
+    <p-toolbar>
+      <ng-template pTemplate="left">
+        <span class="p-input-icon-left search-box">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" [(ngModel)]="searchValue"
+                 (input)="onFilter($event)"
+                 placeholder="Buscar por nombre o email..." class="search-input" />
+          <i class="pi pi-times clear-icon" *ngIf="searchValue" (click)="clearSearch()"></i>
+        </span>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <p-button icon="pi pi-refresh" [outlined]="true" pTooltip="Recargar" (onClick)="loadCandidatos()"></p-button>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <p-table
+    #dt
+    [value]="candidatos"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 25]"
+    [globalFilterFields]="['nombreCompleto', 'email']"
+    [sortField]="'nombreCompleto'"
+    [sortOrder]="1"
+    styleClass="p-datatable-sm"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nombreCompleto">Nombre <p-sortIcon field="nombreCompleto"></p-sortIcon></th>
+        <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+        <th style="width: 180px">Ultima Evaluacion</th>
+        <th style="width: 150px">Fecha</th>
+        <th style="width: 100px">Estado</th>
+        <th style="width: 100px">Puntaje</th>
+        <th style="width: 100px">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-c>
+      <tr>
+        <td>{{ c.nombreCompleto }}</td>
+        <td class="text-500">{{ c.email }}</td>
+        <td>{{ c.ultimoIntento?.cuestionarioNombre || '-' }}</td>
+        <td>
+          <span *ngIf="c.ultimoIntento; else noDate">
+            {{ c.ultimoIntento.fechaInicio | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+          <ng-template #noDate>
+            <span class="text-500">-</span>
+          </ng-template>
+        </td>
+        <td class="text-center">
+          <span *ngIf="c.ultimoIntento; else noStatus">
+            <p-tag [value]="c.ultimoIntento.estado" [severity]="getSeverity(c.ultimoIntento.estado)"></p-tag>
+          </span>
+          <ng-template #noStatus>
+            <span class="text-500">-</span>
+          </ng-template>
+        </td>
+        <td class="text-center">
+          <span *ngIf="c.ultimoIntento; else noScore">
+            {{ c.ultimoIntento.puntajeTotal }}/{{ c.ultimoIntento.puntajeMaximo }}
+          </span>
+          <ng-template #noScore>
+            <span class="text-500">-</span>
+          </ng-template>
+        </td>
+        <td>
+          <div class="flex gap-2 justify-content-center">
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              pTooltip="Ver evaluaciones"
+              (onClick)="verEvaluaciones(c)">
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center p-4">
+          <div class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <span>No hay evaluados registrados.</span>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -19,4 +19,8 @@ export class UsuarioHttpService {
   crear(request: RegisterRequest): Observable<void> {
     return this.http.post<void>(`${this.authUrl}/register`, request);
   }
+
+  getCandidatos(): Observable<UsuarioResponse[]> {
+    return this.http.get<UsuarioResponse[]>(`${this.apiUrl}/candidatos`);
+  }
 }

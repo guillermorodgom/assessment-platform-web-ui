@@ -11,6 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { PasswordModule } from 'primeng/password';
+import { NgIconComponent } from '@ng-icons/core';
 import { MessageService, MenuItem } from 'primeng/api';
 import { UsuarioHttpService } from '../../../core/services/usuario-http.service';
 import { UsuarioResponse, RegisterRequest } from '../../../core/models';
@@ -21,9 +22,10 @@ import { UsuarioResponse, RegisterRequest } from '../../../core/models';
   imports: [
     CommonModule, FormsModule, TableModule, ToolbarModule, ButtonModule,
     DialogModule, InputTextModule, TagModule, TooltipModule,
-    ToastModule, BreadcrumbModule, PasswordModule
+    ToastModule, BreadcrumbModule, PasswordModule, NgIconComponent
   ],
-  templateUrl: './usuario-list.component.html'
+  templateUrl: './usuario-list.component.html',
+  styleUrl: './usuario-list.component.scss'
 })
 export class UsuarioListComponent implements OnInit {
   usuarios: UsuarioResponse[] = [];
@@ -90,14 +92,14 @@ export class UsuarioListComponent implements OnInit {
 
     this.usuarioService.crear(request).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Creado', detail: 'Candidato registrado exitosamente' });
+        this.messageService.add({ severity: 'success', summary: 'Creado', detail: 'Evaluado registrado exitosamente' });
         this.dialogVisible = false;
         this.saving = false;
         this.loadUsuarios();
       },
       error: (err) => {
         this.saving = false;
-        const detail = err.error?.message || 'No se pudo registrar el candidato';
+        const detail = err.error?.message || 'No se pudo registrar el evaluado';
         this.messageService.add({ severity: 'error', summary: 'Error', detail });
       }
     });

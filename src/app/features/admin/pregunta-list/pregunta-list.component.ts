@@ -20,6 +20,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { DividerModule } from 'primeng/divider';
+import { NgIconComponent } from '@ng-icons/core';
 import { MessageService, ConfirmationService, MenuItem } from 'primeng/api';
 import { PreguntaHttpService } from '../../../core/services/pregunta-http.service';
 import { CuestionarioHttpService } from '../../../core/services/cuestionario-http.service';
@@ -46,9 +47,10 @@ interface CasoForm {
     CommonModule, FormsModule, TableModule, ToolbarModule, ButtonModule,
     DialogModule, InputTextModule, InputTextareaModule, InputNumberModule,
     DropdownModule, MultiSelectModule, CheckboxModule, TagModule, ChipModule, AccordionModule,
-    TooltipModule, ConfirmDialogModule, ToastModule, BreadcrumbModule, DividerModule
+    TooltipModule, ConfirmDialogModule, ToastModule, BreadcrumbModule, DividerModule, NgIconComponent
   ],
-  templateUrl: './pregunta-list.component.html'
+  templateUrl: './pregunta-list.component.html',
+  styleUrl: './pregunta-list.component.scss'
 })
 export class PreguntaListComponent implements OnInit {
   cuestionarioId!: number;
@@ -116,6 +118,10 @@ export class PreguntaListComponent implements OnInit {
       ];
     });
     this.loadPreguntas();
+
+    if (this.route.snapshot.queryParamMap.get('crear') === 'true') {
+      this.openNew();
+    }
   }
 
   loadPreguntas(): void {

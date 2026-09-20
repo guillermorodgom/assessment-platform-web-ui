@@ -24,7 +24,7 @@ export const routes: Routes = [
   {
     path: 'assessments/examen/:intentoId',
     loadComponent: () => import('./features/candidato/examen/examen.component').then(m => m.ExamenComponent),
-    canActivate: [authGuard, roleGuard],
+    canActivate: [authGuard, roleGuard, examGuard],
     data: { role: 'CANDIDATO' },
     canDeactivate: [exitExamGuard]
   },
@@ -58,6 +58,14 @@ export const routes: Routes = [
           {
             path: 'usuarios',
             loadComponent: () => import('./features/admin/usuario-list/usuario-list.component').then(m => m.UsuarioListComponent)
+          },
+          {
+            path: 'candidatos',
+            loadComponent: () => import('./features/admin/candidato-list/candidato-list.component').then(m => m.CandidatoListComponent)
+          },
+          {
+            path: 'candidatos/:id/evaluaciones',
+            loadComponent: () => import('./features/admin/candidato-evaluaciones/candidato-evaluaciones.component').then(m => m.CandidatoEvaluacionesComponent)
           }
         ]
       },

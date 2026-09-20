@@ -3,31 +3,41 @@
     <!-- Expandido -->
     <ng-container *ngIf="!sidebarCollapsed">
       <div class="sidebar-header">
-        <span class="sidebar-logo">
-          <i class="pi pi-code"></i>
-        </span>
-        <span class="sidebar-title">Assessment Platform</span>
+        <div class="sidebar-brand">
+          <div class="brand-icon">
+            <i class="pi pi-code"></i>
+          </div>
+          <span class="sidebar-title">Assessment Platform</span>
+        </div>
       </div>
-      <p-panelMenu [model]="menuItems" styleClass="sidebar-menu"></p-panelMenu>
+
+      <nav class="sidebar-nav">
+        <a *ngFor="let item of menuItems" [routerLink]="item.routerLink" routerLinkActive="nav-item--active"
+          [routerLinkActiveOptions]="{ exact: item.routerLink === '/admin' || item.routerLink === '/assessments' }"
+          class="nav-item">
+          <i [class]="item.icon || ''"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      </nav>
     </ng-container>
 
     <!-- Colapsado: solo iconos -->
     <ng-container *ngIf="sidebarCollapsed">
       <div class="sidebar-header sidebar-header--collapsed">
-        <span class="sidebar-logo">
+        <div class="brand-icon brand-icon--small">
           <i class="pi pi-code"></i>
-        </span>
+        </div>
       </div>
-      <div class="sidebar-icons">
+      <nav class="sidebar-icons">
         <a *ngFor="let item of menuItems" [routerLink]="item.routerLink" routerLinkActive="sidebar-icon--active"
           class="sidebar-icon" [pTooltip]="item.label" tooltipPosition="right">
           <i [class]="item.icon || ''"></i>
         </a>
-      </div>
+      </nav>
     </ng-container>
 
     <!-- Toggle -->
-    <div class="sidebar-toggle-btn" (click)="toggleSidebar()">
+    <div class="sidebar-toggle" (click)="toggleSidebar()">
       <i class="pi" [class.pi-chevron-left]="!sidebarCollapsed" [class.pi-chevron-right]="sidebarCollapsed"></i>
     </div>
   </aside>
@@ -40,8 +50,9 @@
           <span class="username">{{ username }}</span>
           <p-avatar [label]="userInitial" shape="circle" styleClass="user-avatar"></p-avatar>
         </div>
-        <p-button icon="pi pi-sign-out" [rounded]="true" [text]="true" severity="secondary" pTooltip="Cerrar sesion"
-          tooltipPosition="bottom" (onClick)="logout()"></p-button>
+        <button class="logout-btn" (click)="logout()" pTooltip="Cerrar sesión" tooltipPosition="bottom">
+          <i class="pi pi-sign-out"></i>
+        </button>
       </div>
     </header>
 
@@ -89,6 +100,10 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button label="Cerrar" icon="pi pi-times" [text]="true" (onClick)="profileVisible = false"></p-button>
+    <p-button label="Cerrar" [text]="true" (onClick)="profileVisible = false">
+      <ng-template pTemplate="icon">
+        <ng-icon name="heroXMark" class="mr-1"></ng-icon>
+      </ng-template>
+    </p-button>
   </ng-template>
 </p-dialog>

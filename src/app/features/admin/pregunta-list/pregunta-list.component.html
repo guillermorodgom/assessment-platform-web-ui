@@ -1,28 +1,36 @@
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
-<div class="p-4">
-  <p-breadcrumb [model]="breadcrumbItems" [home]="home" class="mb-3"></p-breadcrumb>
+<div class="admin-page">
+  <p-breadcrumb [model]="breadcrumbItems" [home]="home"></p-breadcrumb>
 
-  <p-toolbar styleClass="mb-3">
-    <ng-template pTemplate="left">
-      <div class="flex align-items-center gap-3">
-        <p-button label="Nueva Pregunta" icon="pi pi-plus" (onClick)="openNew()"></p-button>
-        <p-button label="Vincular Pregunta" icon="pi pi-link" [outlined]="true" (onClick)="openVincular()"></p-button>
-        <p-chip *ngIf="cuestionario" [label]="cuestionario.nombre" icon="pi pi-book"></p-chip>
-      </div>
-    </ng-template>
-    <ng-template pTemplate="right">
-      <p-button icon="pi pi-refresh" [outlined]="true" pTooltip="Recargar" (onClick)="loadPreguntas()"></p-button>
-    </ng-template>
-  </p-toolbar>
+  <div class="section-header">
+    <div class="section-icon"><i class="pi pi-question-circle"></i></div>
+    <h2 class="section-title">Preguntas</h2>
+    <span class="section-count" *ngIf="!loading">{{ preguntas.length }}</span>
+  </div>
+
+  <div class="admin-toolbar">
+    <p-toolbar>
+      <ng-template pTemplate="left">
+        <div class="flex align-items-center gap-3">
+          <p-button label="Nueva Pregunta" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+          <p-button label="Vincular Pregunta" icon="pi pi-link" [outlined]="true" (onClick)="openVincular()"></p-button>
+          <p-chip *ngIf="cuestionario" [label]="cuestionario.nombre" icon="pi pi-book"></p-chip>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <p-button icon="pi pi-refresh" [outlined]="true" pTooltip="Recargar" (onClick)="loadPreguntas()"></p-button>
+      </ng-template>
+    </p-toolbar>
+  </div>
 
   <p-table
     [value]="preguntas"
     [loading]="loading"
     [paginator]="true"
     [rows]="10"
-    styleClass="p-datatable-sm p-datatable-striped"
+    styleClass="p-datatable-sm"
     responsiveLayout="scroll"
   >
     <ng-template pTemplate="header">
@@ -66,8 +74,10 @@
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="6" class="text-center p-4">
-          <i class="pi pi-inbox text-4xl text-500 mb-3" style="display: block"></i>
-          <span class="text-500">No hay preguntas. Crea la primera.</span>
+          <div class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <span>No hay preguntas. Crea la primera.</span>
+          </div>
         </td>
       </tr>
     </ng-template>
@@ -119,14 +129,22 @@
     <div *ngIf="isOpcion()">
       <div class="flex align-items-center justify-content-between mb-2">
         <span class="font-semibold">Opciones de respuesta</span>
-        <p-button label="Agregar opcion" icon="pi pi-plus" [text]="true" size="small" (onClick)="addOpcion()"></p-button>
+        <p-button label="Agregar opcion" [text]="true" size="small" (onClick)="addOpcion()">
+          <ng-template pTemplate="icon">
+            <ng-icon name="heroPlus" class="mr-1"></ng-icon>
+          </ng-template>
+        </p-button>
       </div>
       <div *ngFor="let op of opciones; let i = index" class="flex align-items-center gap-2 mb-2">
         <input pInputText [(ngModel)]="op.texto" [placeholder]="'Opcion ' + (i + 1)" class="flex-grow-1" />
         <p-checkbox [(ngModel)]="op.esCorrecta" [binary]="true" label="Correcta"
                     (onChange)="onCorrectaChange(i)"></p-checkbox>
-        <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" size="small"
-                  (onClick)="removeOpcion(i)" [disabled]="opciones.length <= 2"></p-button>
+        <p-button [rounded]="true" [text]="true" severity="danger" size="small"
+                  (onClick)="removeOpcion(i)" [disabled]="opciones.length <= 2">
+          <ng-template pTemplate="icon">
+            <ng-icon name="heroXMark"></ng-icon>
+          </ng-template>
+        </p-button>
       </div>
     </div>
 
@@ -134,14 +152,22 @@
     <div *ngIf="isCodigo()">
       <div class="flex align-items-center justify-content-between mb-2">
         <span class="font-semibold">Casos de prueba</span>
-        <p-button label="Agregar caso" icon="pi pi-plus" [text]="true" size="small" (onClick)="addCaso()"></p-button>
+        <p-button label="Agregar caso" [text]="true" size="small" (onClick)="addCaso()">
+          <ng-template pTemplate="icon">
+            <ng-icon name="heroPlus" class="mr-1"></ng-icon>
+          </ng-template>
+        </p-button>
       </div>
       <div *ngFor="let caso of casos; let i = index" class="p-3 border-round mb-2"
            style="background: var(--surface-ground)">
         <div class="flex align-items-center justify-content-between mb-2">
           <span class="text-sm font-semibold">Caso {{ i + 1 }}</span>
-          <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" size="small"
-                    (onClick)="removeCaso(i)"></p-button>
+          <p-button [rounded]="true" [text]="true" severity="danger" size="small"
+                    (onClick)="removeCaso(i)">
+            <ng-template pTemplate="icon">
+              <ng-icon name="heroXMark"></ng-icon>
+            </ng-template>
+          </p-button>
         </div>
         <div class="grid">
           <div class="col-6">
@@ -160,8 +186,16 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="dialogVisible = false"></p-button>
-    <p-button label="Guardar" icon="pi pi-check" (onClick)="save()" [loading]="saving"></p-button>
+    <p-button label="Cancelar" [text]="true" (onClick)="dialogVisible = false">
+      <ng-template pTemplate="icon">
+        <ng-icon name="heroXMark" class="mr-1"></ng-icon>
+      </ng-template>
+    </p-button>
+    <p-button label="Guardar" (onClick)="save()" [loading]="saving">
+      <ng-template pTemplate="icon">
+        <ng-icon name="heroCheck" class="mr-1"></ng-icon>
+      </ng-template>
+    </p-button>
   </ng-template>
 </p-dialog>
 
@@ -182,7 +216,7 @@
     [(selection)]="selectedPreguntas"
     [paginator]="true"
     [rows]="8"
-    styleClass="p-datatable-sm p-datatable-striped"
+    styleClass="p-datatable-sm"
     responsiveLayout="scroll"
     dataKey="id"
   >
@@ -229,9 +263,17 @@
   </p-table>
 
   <ng-template pTemplate="footer">
-    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="vincularDialogVisible = false"></p-button>
-    <p-button label="Vincular seleccionadas" icon="pi pi-link" (onClick)="vincularSeleccionadas()"
+    <p-button label="Cancelar" [text]="true" (onClick)="vincularDialogVisible = false">
+      <ng-template pTemplate="icon">
+        <ng-icon name="heroXMark" class="mr-1"></ng-icon>
+      </ng-template>
+    </p-button>
+    <p-button label="Vincular seleccionadas" (onClick)="vincularSeleccionadas()"
               [loading]="vinculando" [disabled]="selectedPreguntas.length === 0"
-              [badge]="selectedPreguntas.length > 0 ? '' + selectedPreguntas.length : undefined"></p-button>
+              [badge]="selectedPreguntas.length > 0 ? '' + selectedPreguntas.length : undefined">
+      <ng-template pTemplate="icon">
+        <ng-icon name="heroLink" class="mr-1"></ng-icon>
+      </ng-template>
+    </p-button>
   </ng-template>
 </p-dialog>

@@ -44,4 +44,8 @@ export class IntentoHttpService {
   getPreguntasByIntento(intentoId: number): Observable<PreguntaResponse[]> {
     return this.http.get<PreguntaResponse[]>(`${this.apiUrl}/${intentoId}/preguntas`);
   }
+
+  getIntentosByCandidato(candidatoId: number): Observable<IntentoExamenResponse[]> {
+    return this.http.get<IntentoExamenResponse[]>(`${this.apiUrl}/candidato/${candidatoId}`);
+  }
 }

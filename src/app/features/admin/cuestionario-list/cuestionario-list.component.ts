@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -17,6 +17,7 @@ import { ToastModule } from 'primeng/toast';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { NgIconComponent } from '@ng-icons/core';
 import { MessageService, ConfirmationService, MenuItem } from 'primeng/api';
 import { CuestionarioHttpService } from '../../../core/services/cuestionario-http.service';
 import { AsignacionHttpService } from '../../../core/services/asignacion-http.service';
@@ -29,13 +30,16 @@ import { CuestionarioResponse, CreateCuestionarioRequest, UpdateCuestionarioRequ
     CommonModule, FormsModule, TableModule, ToolbarModule, ButtonModule,
     DialogModule, InputTextModule, InputTextareaModule, InputNumberModule,
     InputSwitchModule, TagModule, TooltipModule, ConfirmDialogModule,
-    ToastModule, BreadcrumbModule, CalendarModule, MultiSelectModule
+    ToastModule, BreadcrumbModule, CalendarModule, MultiSelectModule, NgIconComponent
   ],
-  templateUrl: './cuestionario-list.component.html'
+  templateUrl: './cuestionario-list.component.html',
+  styleUrl: './cuestionario-list.component.scss'
 })
 export class CuestionarioListComponent implements OnInit {
+  @ViewChild('dt') dt!: Table;
   cuestionarios: CuestionarioResponse[] = [];
   loading = true;
+  searchValue = '';
 
   dialogVisible = false;
   editMode = false;
@@ -73,6 +77,15 @@ export class CuestionarioListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCuestionarios();
+  }
+
+  onFilter(event: Event): void {
+    this.dt.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
+
+  clearSearch(): void {
+    this.searchValue = '';
+    this.dt.filterGlobal('', 'contains');
   }
 
   loadCuestionarios(): void {
@@ -228,13 +241,13 @@ export class CuestionarioListComponent implements OnInit {
   loadCandidatos(): void {
     this.asignacionService.getCandidatos().subscribe({
       next: data => this.candidatos = data,
-      error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los candidatos' })
+      error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los evaluados' })
     });
   }
 
   guardarAsignacion(): void {
     if (!this.selectedCandidatos.length || !this.disponibleDesde || !this.disponibleHasta || !this.asignacionCuestionarioId) {
-      this.messageService.add({ severity: 'warn', summary: 'Validacion', detail: 'Seleccione candidatos y fechas' });
+      this.messageService.add({ severity: 'warn', summary: 'Validacion', detail: 'Seleccione evaluados y fechas' });
       return;
     }
 

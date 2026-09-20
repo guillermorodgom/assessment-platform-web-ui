@@ -1,17 +1,24 @@
 <p-toast></p-toast>
 
-<div class="p-4">
-  <p-breadcrumb [model]="breadcrumbItems" [home]="home" class="mb-3"></p-breadcrumb>
+<div class="admin-page">
+  <p-breadcrumb [model]="breadcrumbItems" [home]="home"></p-breadcrumb>
 
-  <p-toolbar styleClass="mb-3">
-    <ng-template pTemplate="left">
-      <p-button label="Nuevo Candidato" icon="pi pi-user-plus" (onClick)="openNew()"></p-button>
-      <p-tag class="ml-3" [value]="usuarios.length + ' usuarios'" severity="info"></p-tag>
-    </ng-template>
-    <ng-template pTemplate="right">
-      <p-button icon="pi pi-refresh" [outlined]="true" pTooltip="Recargar" (onClick)="loadUsuarios()"></p-button>
-    </ng-template>
-  </p-toolbar>
+  <div class="section-header">
+    <div class="section-icon"><i class="pi pi-users"></i></div>
+    <h2 class="section-title">Usuarios</h2>
+    <span class="section-count" *ngIf="!loading">{{ usuarios.length }}</span>
+  </div>
+
+  <div class="admin-toolbar">
+    <p-toolbar>
+      <ng-template pTemplate="left">
+        <p-button label="Registrar Evaluado" icon="pi pi-user-plus" (onClick)="openNew()"></p-button>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <p-button icon="pi pi-refresh" [outlined]="true" pTooltip="Recargar" (onClick)="loadUsuarios()"></p-button>
+      </ng-template>
+    </p-toolbar>
+  </div>
 
   <p-table
     [value]="usuarios"
@@ -22,7 +29,7 @@
     [globalFilterFields]="['username', 'nombreCompleto', 'email']"
     [sortField]="'username'"
     [sortOrder]="1"
-    styleClass="p-datatable-sm p-datatable-striped"
+    styleClass="p-datatable-sm"
     responsiveLayout="scroll"
   >
     <ng-template pTemplate="header">
@@ -50,17 +57,19 @@
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="4" class="text-center p-4">
-          <i class="pi pi-users text-4xl text-500 mb-3" style="display: block"></i>
-          <span class="text-500">No hay usuarios registrados.</span>
+          <div class="empty-state">
+            <i class="pi pi-users"></i>
+            <span>No hay usuarios registrados.</span>
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
 
-<!-- Dialog crear candidato -->
+<!-- Dialog crear evaluado -->
 <p-dialog
-  header="Nuevo Candidato"
+  header="Registrar Evaluado"
   [(visible)]="dialogVisible"
   [modal]="true"
   [style]="{ width: '450px' }"
@@ -91,7 +100,15 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="dialogVisible = false"></p-button>
-    <p-button label="Registrar" icon="pi pi-check" (onClick)="save()" [loading]="saving"></p-button>
+    <p-button label="Cancelar" [text]="true" (onClick)="dialogVisible = false">
+      <ng-template pTemplate="icon">
+        <ng-icon name="heroXMark" class="mr-1"></ng-icon>
+      </ng-template>
+    </p-button>
+    <p-button label="Registrar" (onClick)="save()" [loading]="saving">
+      <ng-template pTemplate="icon">
+        <ng-icon name="heroCheck" class="mr-1"></ng-icon>
+      </ng-template>
+    </p-button>
   </ng-template>
 </p-dialog>

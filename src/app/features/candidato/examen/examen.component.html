@@ -7,23 +7,32 @@
 
 <div *ngIf="!loading" class="exam-container">
   <!-- Header -->
-  <div class="exam-header p-3 flex align-items-center justify-content-between"
-    style="background: var(--surface-card); border-bottom: 1px solid var(--surface-border)">
-    <div class="flex align-items-center gap-3">
-      <h3 class="m-0" style="color: #e4e4e7">{{ intento?.cuestionarioNombre }}</h3>
-      <p-tag [value]="examState.getSubmittedCount() + '/' + preguntas.length + ' enviadas'" severity="info"></p-tag>
-    </div>
-    <div class="flex align-items-center gap-3">
-      <div class="flex align-items-center gap-2" style="min-width: 200px">
-        <i class="pi pi-clock" [class.text-red-400]="secondsRemaining < 300"></i>
-        <span class="font-mono font-bold text-lg" [class.text-red-400]="secondsRemaining < 300">
-          {{ timerDisplay }}
+  <div class="exam-header" [class.exam-header--critical]="secondsRemaining < 300 && secondsRemaining > 0">
+    <div class="exam-header__left">
+      <h3 class="exam-header__title">{{ intento?.cuestionarioNombre }}</h3>
+      <div class="exam-header__progress-pills">
+        <span class="progress-pill">
+          <i class="pi pi-send"></i>
+          {{ examState.getSubmittedCount() }}/{{ preguntas.length }}
         </span>
-        <p-progressBar [value]="timerProgress" [showValue]="false" [style]="{ height: '8px', width: '100px' }"
-          [color]="secondsRemaining < 300 ? '#ef4444' : undefined"></p-progressBar>
       </div>
+    </div>
+
+    <div class="exam-header__right">
+      <!-- Pill timer -->
+      <div class="timer-pill"
+           [class.timer-pill--warn]="secondsRemaining < 600 && secondsRemaining >= 300"
+           [class.timer-pill--critical]="secondsRemaining < 300 && secondsRemaining > 0"
+           [class.timer-pill--pulse]="secondsRemaining < 60 && secondsRemaining > 0">
+        <i class="pi pi-clock timer-pill__icon"></i>
+        <span class="timer-pill__time">{{ timerDisplay }}</span>
+        <div class="timer-pill__bar">
+          <div class="timer-pill__bar-fill" [style.width.%]="timerProgress"></div>
+        </div>
+      </div>
+
       <p-button label="Finalizar" icon="pi pi-check" severity="danger" (onClick)="confirmFinalize()"
-        [loading]="finalizing"></p-button>
+        [loading]="finalizing" [outlined]="true"></p-button>
     </div>
   </div>
 

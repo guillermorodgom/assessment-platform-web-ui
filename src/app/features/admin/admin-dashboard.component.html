@@ -1,0 +1,71 @@
+<div class="admin-wrap">
+  <!-- Hero header -->
+  <div class="admin-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Panel de Administracion</h1>
+      <p class="hero-subtitle">Gestiona evaluaciones, preguntas y evaluados</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <span class="stat-value">{{ cuestionarios.length }}</span>
+        <span class="stat-label">Cuestionarios</span>
+      </div>
+      <div class="stat-card stat-card--success">
+        <span class="stat-value">{{ activos }}</span>
+        <span class="stat-label">Activos</span>
+      </div>
+      <div class="stat-card stat-card--warning">
+        <span class="stat-value">{{ totalPreguntas }}</span>
+        <span class="stat-label">Preguntas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action cards -->
+  <div class="action-grid">
+    <div class="action-card" routerLink="/admin/cuestionarios">
+      <div class="action-card__accent"></div>
+      <div class="action-card__body">
+        <div class="action-card__icon">
+          <i class="pi pi-list"></i>
+        </div>
+        <h3 class="action-card__title">Cuestionarios</h3>
+        <p class="action-card__desc">Crear, editar y administrar evaluaciones. Configura tiempos limite y activa o desactiva cuestionarios.</p>
+        <div class="action-card__footer">
+          <span class="action-card__count">{{ cuestionarios.length }} registrados</span>
+          <i class="pi pi-arrow-right action-card__arrow"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-card" routerLink="/admin/banco-preguntas">
+      <div class="action-card__accent"></div>
+      <div class="action-card__body">
+        <div class="action-card__icon">
+          <i class="pi pi-database"></i>
+        </div>
+        <h3 class="action-card__title">Banco de Preguntas</h3>
+        <p class="action-card__desc">Visualiza todas las preguntas del sistema. Filtra por titulo, tipo o cuestionario asociado.</p>
+        <div class="action-card__footer">
+          <span class="action-card__count">{{ totalPreguntas }} preguntas</span>
+          <i class="pi pi-arrow-right action-card__arrow"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-card" routerLink="/admin/usuarios">
+      <div class="action-card__accent"></div>
+      <div class="action-card__body">
+        <div class="action-card__icon">
+          <i class="pi pi-users"></i>
+        </div>
+        <h3 class="action-card__title">Usuarios</h3>
+        <p class="action-card__desc">Gestiona evaluados registrados en la plataforma. Registra nuevos usuarios para las evaluaciones.</p>
+        <div class="action-card__footer">
+          <span class="action-card__count">Gestionar usuarios</span>
+          <i class="pi pi-arrow-right action-card__arrow"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

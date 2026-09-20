@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuItem } from 'primeng/api';
-import { PanelMenuModule } from 'primeng/panelmenu';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
+import { NgIconComponent } from '@ng-icons/core';
 import { AuthService } from '../core/services/auth.service';
 import { UserInfoResponse } from '../core/models';
 
@@ -18,8 +18,8 @@ import { UserInfoResponse } from '../core/models';
   standalone: true,
   imports: [
     CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive,
-    PanelMenuModule, ButtonModule, AvatarModule, TooltipModule,
-    DialogModule, InputTextModule, TagModule
+    ButtonModule, AvatarModule, TooltipModule,
+    DialogModule, InputTextModule, TagModule, NgIconComponent
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
@@ -91,6 +91,11 @@ export class LayoutComponent implements OnInit {
           label: 'Usuarios',
           icon: 'pi pi-users',
           routerLink: '/admin/usuarios'
+        },
+        {
+          label: 'Evaluados',
+          icon: 'pi pi-id-card',
+          routerLink: '/admin/candidatos'
         }
       ];
     } else {

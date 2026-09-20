@@ -1,18 +1,29 @@
 <p-toast></p-toast>
 
-<p-panel>
-  <ng-template pTemplate="header">
-    <div class="flex align-items-center gap-2">
+<!-- Question Statement — hero block -->
+<div class="enunciado-block">
+  <div class="enunciado-header">
+    <div class="enunciado-badge enunciado-badge--code">
       <i class="pi pi-code"></i>
-      <span class="font-semibold">{{ pregunta.titulo }}</span>
-      <p-tag *ngIf="submitted" value="Enviada" severity="success" [rounded]="true"></p-tag>
+      <span>Codigo</span>
     </div>
-  </ng-template>
+    <div class="enunciado-meta">
+      <p-tag *ngIf="submitted" value="Enviada" severity="success" [rounded]="true" icon="pi pi-check"></p-tag>
+      <span class="enunciado-points">{{ pregunta.puntaje }} pts</span>
+    </div>
+  </div>
+  <h2 class="enunciado-titulo">{{ pregunta.titulo }}</h2>
+  <p *ngIf="pregunta.descripcion" class="enunciado-descripcion">{{ pregunta.descripcion }}</p>
+  <div *ngIf="pregunta.casosDePrueba?.length" class="enunciado-cases">
+    <i class="pi pi-check-circle"></i>
+    <span>{{ pregunta.casosDePrueba.length }} caso{{ pregunta.casosDePrueba.length > 1 ? 's' : '' }} de prueba</span>
+  </div>
+</div>
 
-  <p *ngIf="pregunta.descripcion" class="text-500 mt-0 mb-3">{{ pregunta.descripcion }}</p>
-
+<!-- Editor area -->
+<div class="code-workspace">
   <!-- Language selector + actions -->
-  <div class="flex align-items-center justify-content-between mb-2">
+  <div class="code-toolbar">
     <p-dropdown [options]="lenguajeOptions" [(ngModel)]="selectedLanguage"
                 (onChange)="onLanguageChange()" [style]="{ width: '180px' }"></p-dropdown>
     <div class="flex gap-2">
@@ -24,7 +35,7 @@
   </div>
 
   <!-- Monaco Editor -->
-  <div style="height: 350px; border: 1px solid var(--surface-border); border-radius: 6px; overflow: hidden">
+  <div class="editor-frame">
     <ngx-monaco-editor
       *ngIf="editorReady"
       [options]="editorOptions"
@@ -38,10 +49,10 @@
   <!-- Output tabs -->
   <p-tabView [(activeIndex)]="activeTabIndex" styleClass="mt-3">
     <p-tabPanel header="Consola">
-      <div style="background: #1e1e1e; border-radius: 6px; padding: 1rem; min-height: 100px; font-family: monospace; font-size: 13px; white-space: pre-wrap; overflow-x: auto">
+      <div class="console-output">
         <span *ngIf="consoleOutput" style="color: #4ec9b0">{{ consoleOutput }}</span>
         <span *ngIf="consoleError" style="color: #f44747">{{ consoleError }}</span>
-        <span *ngIf="!consoleOutput && !consoleError" style="color: #6a6a6a">Ejecuta tu codigo para ver la salida aqui...</span>
+        <span *ngIf="!consoleOutput && !consoleError" class="console-placeholder">Ejecuta tu codigo para ver la salida aqui...</span>
       </div>
     </p-tabPanel>
 
@@ -51,8 +62,7 @@
       </div>
 
       <div *ngFor="let tr of testResults; let i = index"
-           class="p-3 mb-2 border-round"
-           style="background: var(--surface-ground)">
+           class="test-case-result">
         <div class="flex align-items-center justify-content-between mb-2">
           <span class="font-semibold text-sm">Caso {{ i + 1 }}</span>
           <p-tag [value]="tr.passed ? 'Passed' : 'Failed'"
@@ -76,4 +86,4 @@
       </div>
     </p-tabPanel>
   </p-tabView>
-</p-panel>
+</div>

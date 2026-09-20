@@ -1,12 +1,12 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PanelModule } from 'primeng/panel';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
+import { ChipModule } from 'primeng/chip';
 import { MessageService } from 'primeng/api';
 import { IntentoHttpService } from '../../../../core/services/intento-http.service';
 import { ExamStateService } from '../../../../core/services/exam-state.service';
@@ -17,10 +17,11 @@ import { TipoPregunta } from '../../../../core/models/enums.model';
   selector: 'app-pregunta-opcion',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, PanelModule, RadioButtonModule,
-    CheckboxModule, ButtonModule, TagModule, ToastModule
+    CommonModule, FormsModule, RadioButtonModule,
+    CheckboxModule, ButtonModule, TagModule, ToastModule, ChipModule
   ],
-  templateUrl: './pregunta-opcion.component.html'
+  templateUrl: './pregunta-opcion.component.html',
+  styleUrl: './pregunta-opcion.component.scss'
 })
 export class PreguntaOpcionComponent implements OnInit, OnChanges {
   @Input() pregunta!: PreguntaResponse;
@@ -83,6 +84,10 @@ export class PreguntaOpcionComponent implements OnInit, OnChanges {
     this.examState.updateAnswer(this.pregunta.id, {
       opcionesSeleccionadas: opciones
     });
+  }
+
+  getLetter(index: number): string {
+    return String.fromCharCode(65 + index);
   }
 
   enviarRespuesta(): void {

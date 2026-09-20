@@ -14,6 +14,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { IntentoHttpService } from '../../../core/services/intento-http.service';
 import { CuestionarioHttpService } from '../../../core/services/cuestionario-http.service';
 import { ExamStateService } from '../../../core/services/exam-state.service';
+import { IdObfuscationService } from '../../../core/services/id-obfuscation.service';
 import { CanLeaveExam } from '../../../core/guards/exit-exam.guard';
 import { PreguntaResponse, IntentoExamenResponse } from '../../../core/models';
 import { TipoPregunta } from '../../../core/models/enums.model';
@@ -58,11 +59,13 @@ export class ExamenComponent implements OnInit, OnDestroy, CanLeaveExam {
     private cuestionarioService: CuestionarioHttpService,
     public examState: ExamStateService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private idObfuscation: IdObfuscationService
   ) {}
 
   ngOnInit(): void {
-    this.intentoId = Number(this.route.snapshot.paramMap.get('intentoId'));
+    const rawParam = this.route.snapshot.paramMap.get('intentoId') || '';
+    this.intentoId = this.idObfuscation.decode(rawParam) || 0;
 
     this.intentoService.getResultado(this.intentoId).subscribe({
       next: intento => {
@@ -81,11 +84,14 @@ export class ExamenComponent implements OnInit, OnDestroy, CanLeaveExam {
                 c.tiempoLimite
               );
 
-              // Restore already submitted answers from backend
+              // Restore only truly answered responses from backend
+              // (the backend pre-creates empty RespuestaCandidato rows on exam start)
               if (intento.respuestas) {
-                intento.respuestas.forEach(r => {
-                  this.examState.markSubmitted(r.preguntaId, r);
-                });
+                intento.respuestas
+                  .filter(r => r.codigoFuente || (r.opcionesSeleccionadas && r.opcionesSeleccionadas.length > 0))
+                  .forEach(r => {
+                    this.examState.markSubmitted(r.preguntaId, r);
+                  });
               }
 
               this.selectPregunta(0);
@@ -196,7 +202,7 @@ export class ExamenComponent implements OnInit, OnDestroy, CanLeaveExam {
     this.intentoService.finalizar(this.intentoId).subscribe({
       next: () => {
         this.examState.finishExam();
-        this.router.navigate(['/assessments/resultado', this.intentoId]);
+        this.router.navigate(['/assessments/resultado', this.idObfuscation.encode(this.intentoId)]);
       },
       error: () => {
         this.finalizing = false;

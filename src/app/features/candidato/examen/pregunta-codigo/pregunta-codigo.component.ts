@@ -2,7 +2,6 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges, AfterViewInit, Chan
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { PanelModule } from 'primeng/panel';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { TabViewModule } from 'primeng/tabview';
@@ -20,10 +19,11 @@ import { LenguajeProgramacion } from '../../../../core/models/enums.model';
   selector: 'app-pregunta-codigo',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MonacoEditorModule, PanelModule,
+    CommonModule, FormsModule, MonacoEditorModule,
     DropdownModule, ButtonModule, TabViewModule, TagModule, ToastModule
   ],
-  templateUrl: './pregunta-codigo.component.html'
+  templateUrl: './pregunta-codigo.component.html',
+  styleUrl: './pregunta-codigo.component.scss'
 })
 export class PreguntaCodigoComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() pregunta!: PreguntaResponse;
