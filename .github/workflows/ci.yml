@@ -1,0 +1,33 @@
+name: CI - Frontend 🚀
+
+on:
+  push:
+    branches: [develop, 'feature/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install and build
+        run: npm ci && npx ng build --configuration=production
+
+  trigger-deploy:
+    needs: build
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy in infra
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.DEPLOY_TOKEN }}" \
+            https://api.github.com/repos/guillermorodgom/assessment-platform-infra/dispatches \
+            -d '{"event_type":"deploy","client_payload":{"repo":"${{ github.repository }}"}}'
