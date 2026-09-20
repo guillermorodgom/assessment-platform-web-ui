@@ -150,6 +150,15 @@
   }
 }
 
+.auth-credit {
+  position: fixed;
+  bottom: 1rem;
+  right: 1.25rem;
+  font-size: 0.75rem;
+  color: #52525b;
+  letter-spacing: 0.02em;
+}
+
 @media (max-width: 480px) {
   .auth-container {
     padding: 1rem;
