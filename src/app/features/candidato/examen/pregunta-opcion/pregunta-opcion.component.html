@@ -1,0 +1,43 @@
+<p-toast></p-toast>
+
+<p-panel>
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-2">
+      <i class="pi pi-check-square"></i>
+      <span class="font-semibold">{{ pregunta.titulo }}</span>
+      <p-tag *ngIf="submitted" value="Enviada" severity="success" [rounded]="true"></p-tag>
+    </div>
+  </ng-template>
+
+  <p *ngIf="pregunta.descripcion" class="text-500 mt-0 mb-3">{{ pregunta.descripcion }}</p>
+
+  <!-- Opcion Unica -->
+  <div *ngIf="isUnica()" class="flex flex-column gap-3">
+    <div *ngFor="let op of pregunta.opciones"
+         class="p-3 border-round flex align-items-center gap-2"
+         style="background: var(--surface-ground)">
+      <p-radioButton [name]="'pregunta_' + pregunta.id" [value]="op.id"
+                     [(ngModel)]="selectedSingle" (ngModelChange)="onSelectionChange()"
+                     [disabled]="submitted"></p-radioButton>
+      <span>{{ op.texto }}</span>
+    </div>
+  </div>
+
+  <!-- Opcion Multiple -->
+  <div *ngIf="!isUnica()" class="flex flex-column gap-3">
+    <div *ngFor="let op of pregunta.opciones"
+         class="p-3 border-round flex align-items-center gap-2"
+         style="background: var(--surface-ground)">
+      <p-checkbox [value]="op.id" [(ngModel)]="selectedMultiple"
+                  (ngModelChange)="onSelectionChange()" [disabled]="submitted"></p-checkbox>
+      <span>{{ op.texto }}</span>
+    </div>
+  </div>
+
+  <!-- Submit button -->
+  <div class="mt-3">
+    <p-button label="Enviar Respuesta" icon="pi pi-send"
+              (onClick)="enviarRespuesta()" [loading]="submitting" [disabled]="submitted"></p-button>
+  </div>
+
+</p-panel>

@@ -1,0 +1,117 @@
+<div *ngIf="loading" class="flex align-items-center justify-content-center" style="height: 60vh">
+  <i class="pi pi-spin pi-spinner text-4xl"></i>
+</div>
+
+<div *ngIf="!loading && resultado" class="p-4">
+  <!-- Header -->
+  <div class="flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="mt-0 mb-1" style="color: #e4e4e7">Resultados: {{ resultado.cuestionarioNombre }}</h2>
+      <span class="text-500">Finalizado el {{ resultado.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
+    </div>
+    <p-button label="Volver a evaluaciones" icon="pi pi-arrow-left" [outlined]="true" (onClick)="volver()"></p-button>
+  </div>
+
+  <!-- Score -->
+  <div class="flex align-items-center justify-content-center mb-4">
+    <div class="text-center">
+      <p-knob [(ngModel)]="puntajePorcentaje" [readonly]="true" [size]="180"
+              [valueColor]="puntajePorcentaje >= 60 ? '#22c55e' : '#ef4444'"
+              rangeColor="#334155" valueTemplate="{value}%"></p-knob>
+      <div class="mt-2">
+        <span class="text-xl font-bold" style="color: #e4e4e7">{{ resultado.puntajeTotal }} / {{ puntajeMaximo }} pts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <p-fieldset legend="Resumen" styleClass="mb-4">
+    <div class="grid text-center">
+      <div class="col-6 md:col-3">
+        <div class="text-500 text-sm">Total preguntas</div>
+        <div class="text-xl font-bold" style="color: #e4e4e7">{{ preguntas.length }}</div>
+      </div>
+      <div class="col-6 md:col-3">
+        <div class="text-500 text-sm">Respondidas</div>
+        <div class="text-xl font-bold" style="color: #e4e4e7">{{ (resultado.respuestas || []).length }}</div>
+      </div>
+      <div class="col-6 md:col-3">
+        <div class="text-500 text-sm">Correctas</div>
+        <div class="text-xl font-bold" style="color: #22c55e">{{ correctas }}</div>
+      </div>
+      <div class="col-6 md:col-3">
+        <div class="text-500 text-sm">Incorrectas</div>
+        <div class="text-xl font-bold" style="color: #ef4444">{{ incorrectas }}</div>
+      </div>
+    </div>
+  </p-fieldset>
+
+  <p-divider></p-divider>
+
+  <!-- Detail per question -->
+  <h3 class="mb-3" style="color: #a1a1aa">Detalle por pregunta</h3>
+
+  <p-accordion [multiple]="true">
+    <p-accordionTab *ngFor="let pregunta of preguntas; let i = index">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2 flex-grow-1">
+          <span>{{ i + 1 }}. {{ pregunta.titulo }}</span>
+          <p-tag *ngIf="getRespuesta(pregunta.id) as resp"
+                 [value]="resp.esCorrecta ? 'Correcta' : 'Incorrecta'"
+                 [severity]="resp.esCorrecta ? 'success' : 'danger'"
+                 [rounded]="true"></p-tag>
+          <p-tag *ngIf="!getRespuesta(pregunta.id)"
+                 value="Sin respuesta" severity="warning" [rounded]="true"></p-tag>
+          <p-chip [label]="pregunta.puntaje + ' pts'" styleClass="text-xs ml-auto"></p-chip>
+        </div>
+      </ng-template>
+
+      <div *ngIf="getRespuesta(pregunta.id) as resp">
+        <!-- Codigo -->
+        <div *ngIf="pregunta.tipoPregunta === TipoPregunta.CODIGO">
+          <div class="mb-2">
+            <span class="text-500 text-sm">Lenguaje: </span>
+            <p-tag [value]="resp.lenguaje || '-'" severity="info" [rounded]="true"></p-tag>
+          </div>
+          <div class="mb-2">
+            <span class="text-500 text-sm block mb-1">Codigo enviado:</span>
+            <pre style="background: #1e1e1e; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 13px; color: #d4d4d4; margin: 0">{{ resp.codigoFuente }}</pre>
+          </div>
+          <div *ngIf="resp.salidaObtenida" class="mb-2">
+            <span class="text-500 text-sm block mb-1">Salida:</span>
+            <pre style="background: #1e1e1e; padding: 0.5rem 1rem; border-radius: 6px; font-size: 13px; color: #4ec9b0; margin: 0">{{ resp.salidaObtenida }}</pre>
+          </div>
+          <div>
+            <span class="text-500 text-sm">Puntaje obtenido: </span>
+            <strong [style.color]="resp.esCorrecta ? '#22c55e' : '#ef4444'">{{ resp.puntajeObtenido }} / {{ pregunta.puntaje }}</strong>
+          </div>
+        </div>
+
+        <!-- Opciones -->
+        <div *ngIf="pregunta.tipoPregunta !== TipoPregunta.CODIGO">
+          <div class="flex flex-column gap-2 mb-3">
+            <div *ngFor="let op of pregunta.opciones"
+                 class="p-2 border-round flex align-items-center gap-2"
+                 [style.background]="op.esCorrecta ? 'rgba(34, 197, 94, 0.1)' : 'var(--surface-ground)'"
+                 [style.border]="(resp.opcionesSeleccionadas || []).includes(op.id) ? '1px solid ' + (op.esCorrecta ? '#22c55e' : '#ef4444') : '1px solid transparent'">
+              <i *ngIf="op.esCorrecta" class="pi pi-check-circle" style="color: #22c55e"></i>
+              <i *ngIf="!op.esCorrecta && (resp.opcionesSeleccionadas || []).includes(op.id)" class="pi pi-times-circle" style="color: #ef4444"></i>
+              <i *ngIf="!op.esCorrecta && !(resp.opcionesSeleccionadas || []).includes(op.id)" class="pi pi-circle" style="color: #6a6a6a"></i>
+              <span>{{ op.texto }}</span>
+              <p-tag *ngIf="(resp.opcionesSeleccionadas || []).includes(op.id)" value="Tu respuesta" severity="info"
+                     styleClass="text-xs ml-auto" [rounded]="true"></p-tag>
+            </div>
+          </div>
+          <div>
+            <span class="text-500 text-sm">Puntaje obtenido: </span>
+            <strong [style.color]="resp.esCorrecta ? '#22c55e' : '#ef4444'">{{ resp.puntajeObtenido }} / {{ pregunta.puntaje }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!getRespuesta(pregunta.id)" class="text-500">
+        No se envio respuesta para esta pregunta.
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+</div>
