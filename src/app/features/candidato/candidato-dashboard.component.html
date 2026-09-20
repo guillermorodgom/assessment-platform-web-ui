@@ -1,0 +1,116 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="p-4">
+  <h2 class="mt-0 mb-4" style="color: #e4e4e7">Evaluaciones</h2>
+
+  <!-- Evaluaciones Asignadas -->
+  <h3 class="mb-3" style="color: #a1a1aa">Mis Evaluaciones Asignadas</h3>
+
+  <div *ngIf="loadingAsignaciones" class="text-center p-4">
+    <i class="pi pi-spin pi-spinner text-2xl"></i>
+  </div>
+
+  <div *ngIf="!loadingAsignaciones && asignaciones.length === 0" class="text-center p-4">
+    <i class="pi pi-inbox text-4xl text-500 mb-3" style="display: block"></i>
+    <span class="text-500">No tienes evaluaciones asignadas en este momento.</span>
+  </div>
+
+  <div class="grid" *ngIf="!loadingAsignaciones">
+    <div class="col-12 md:col-6 lg:col-4" *ngFor="let a of asignaciones">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="p-3 pb-0 flex justify-content-between align-items-center">
+            <h4 class="m-0" style="color: #e4e4e7">{{ a.cuestionarioNombre }}</h4>
+            <p-tag [value]="getAsignacionLabel(a.estado)" [severity]="getAsignacionSeverity(a.estado)"></p-tag>
+          </div>
+        </ng-template>
+        <div class="flex flex-column gap-2">
+          <div class="flex gap-2 align-items-center">
+            <i class="pi pi-calendar text-500"></i>
+            <span class="text-500 text-sm">Desde: {{ a.disponibleDesde | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="flex gap-2 align-items-center">
+            <i class="pi pi-calendar-times text-500"></i>
+            <span class="text-500 text-sm">Hasta: {{ a.disponibleHasta | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div *ngIf="a.tiempoLimite" class="flex gap-2 align-items-center">
+            <i class="pi pi-clock text-500"></i>
+            <span class="text-500 text-sm">Tiempo limite: {{ a.tiempoLimite }} min</span>
+          </div>
+          <div class="flex gap-2 align-items-center">
+            <i class="pi pi-replay text-500"></i>
+            <span class="text-500 text-sm">
+              Intentos restantes: {{ getIntentosLabel(a) }}
+            </span>
+            <p-tag *ngIf="!tieneIntentosDisponibles(a)" value="Agotados" severity="danger" class="ml-1"></p-tag>
+          </div>
+        </div>
+        <ng-template pTemplate="footer">
+          <p-button label="Iniciar Evaluacion" icon="pi pi-play" (onClick)="iniciarEvaluacion(a)"
+                    [style]="{ width: '100%' }" [disabled]="!puedeIniciar(a)"></p-button>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+
+  <p-divider class="my-4"></p-divider>
+
+  <!-- Mis Intentos -->
+  <h3 class="mb-3" style="color: #a1a1aa">Mis Intentos</h3>
+
+  <div *ngIf="loadingIntentos" class="text-center p-4">
+    <i class="pi pi-spin pi-spinner text-2xl"></i>
+  </div>
+
+  <p-table
+    *ngIf="!loadingIntentos"
+    [value]="intentos"
+    [paginator]="intentos.length > 10"
+    [rows]="10"
+    styleClass="p-datatable-sm p-datatable-striped"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Cuestionario</th>
+        <th style="width: 150px">Estado</th>
+        <th style="width: 150px">Fecha Inicio</th>
+        <th style="width: 120px">Puntaje</th>
+        <th style="width: 150px">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-intento>
+      <tr>
+        <td>{{ intento.cuestionarioNombre }}</td>
+        <td>
+          <p-tag [value]="getEstadoLabel(intento.estado)" [severity]="getEstadoSeverity(intento.estado)"></p-tag>
+        </td>
+        <td>{{ intento.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td class="text-center">
+          <span *ngIf="intento.estado === 'FINALIZADO'">
+            <strong>{{ intento.puntajeTotal }}</strong>
+          </span>
+          <span *ngIf="intento.estado !== 'FINALIZADO'" class="text-500">-</span>
+        </td>
+        <td>
+          <p-button *ngIf="intento.estado === 'EN_PROGRESO'"
+                    label="Continuar" icon="pi pi-play" [text]="true" severity="warning"
+                    (onClick)="continuarExamen(intento)"></p-button>
+          <p-button *ngIf="intento.estado === 'FINALIZADO'"
+                    label="Ver resultado" icon="pi pi-eye" [text]="true" severity="info"
+                    (onClick)="verResultado(intento)"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center p-4">
+          <span class="text-500">Aun no has realizado ninguna evaluacion.</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
