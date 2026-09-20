@@ -1,0 +1,94 @@
+<div class="layout-wrapper">
+  <aside class="layout-sidebar" [class.layout-sidebar--collapsed]="sidebarCollapsed">
+    <!-- Expandido -->
+    <ng-container *ngIf="!sidebarCollapsed">
+      <div class="sidebar-header">
+        <span class="sidebar-logo">
+          <i class="pi pi-code"></i>
+        </span>
+        <span class="sidebar-title">Assessment Platform</span>
+      </div>
+      <p-panelMenu [model]="menuItems" styleClass="sidebar-menu"></p-panelMenu>
+    </ng-container>
+
+    <!-- Colapsado: solo iconos -->
+    <ng-container *ngIf="sidebarCollapsed">
+      <div class="sidebar-header sidebar-header--collapsed">
+        <span class="sidebar-logo">
+          <i class="pi pi-code"></i>
+        </span>
+      </div>
+      <div class="sidebar-icons">
+        <a *ngFor="let item of menuItems" [routerLink]="item.routerLink" routerLinkActive="sidebar-icon--active"
+          class="sidebar-icon" [pTooltip]="item.label" tooltipPosition="right">
+          <i [class]="item.icon || ''"></i>
+        </a>
+      </div>
+    </ng-container>
+
+    <!-- Toggle -->
+    <div class="sidebar-toggle-btn" (click)="toggleSidebar()">
+      <i class="pi" [class.pi-chevron-left]="!sidebarCollapsed" [class.pi-chevron-right]="sidebarCollapsed"></i>
+    </div>
+  </aside>
+
+  <div class="layout-main">
+    <header class="layout-header">
+      <div class="header-spacer"></div>
+      <div class="header-user">
+        <div class="profile-trigger" (click)="openProfile()" pTooltip="Ver perfil" tooltipPosition="bottom">
+          <span class="username">{{ username }}</span>
+          <p-avatar [label]="userInitial" shape="circle" styleClass="user-avatar"></p-avatar>
+        </div>
+        <p-button icon="pi pi-sign-out" [rounded]="true" [text]="true" severity="secondary" pTooltip="Cerrar sesion"
+          tooltipPosition="bottom" (onClick)="logout()"></p-button>
+      </div>
+    </header>
+
+    <main class="layout-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+<!-- Profile Dialog -->
+<p-dialog [(visible)]="profileVisible" [modal]="true" header="Perfil de Usuario" [style]="{ width: '28rem' }">
+  <div class="flex flex-column gap-4">
+    <div class="flex align-items-center gap-3">
+      <p-avatar [label]="userInitial" shape="circle" size="xlarge" styleClass="user-avatar-large"></p-avatar>
+      <div>
+        <p class="font-semibold text-lg m-0" style="color: #e4e4e7">{{ profileName }}</p>
+        <p class="text-500 text-sm m-0 mt-1">{{ profileEmail }}</p>
+      </div>
+    </div>
+
+    <div class="flex flex-column gap-3 pt-2">
+      <div class="flex flex-column gap-1">
+        <label class="text-sm font-semibold text-500">Nombre completo</label>
+        <input pInputText [value]="profileName" [readonly]="true" />
+      </div>
+
+      <div class="flex flex-column gap-1">
+        <label class="text-sm font-semibold text-500">Usuario</label>
+        <input pInputText [value]="profileUsername" [readonly]="true" />
+      </div>
+
+      <div class="flex flex-column gap-1">
+        <label class="text-sm font-semibold text-500">Email</label>
+        <input pInputText [value]="profileEmail" [disabled]="true" />
+      </div>
+
+      <div class="flex flex-column gap-1">
+        <label class="text-sm font-semibold text-500">Roles</label>
+        <div class="flex gap-2">
+          <p-tag *ngFor="let rol of profileRoles" [value]="rol"
+            [severity]="rol === 'ADMIN' ? 'danger' : 'info'"></p-tag>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cerrar" icon="pi pi-times" [text]="true" (onClick)="profileVisible = false"></p-button>
+  </ng-template>
+</p-dialog>
