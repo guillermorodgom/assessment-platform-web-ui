@@ -1,0 +1,30 @@
+export enum TipoPregunta {
+  CODIGO = 'CODIGO',
+  OPCION_UNICA = 'OPCION_UNICA',
+  OPCION_MULTIPLE = 'OPCION_MULTIPLE'
+}
+
+export enum LenguajeProgramacion {
+  JAVA = 'JAVA',
+  JAVASCRIPT = 'JAVASCRIPT',
+  PYTHON = 'PYTHON'
+}
+
+export enum EstadoIntento {
+  EN_PROGRESO = 'EN_PROGRESO',
+  FINALIZADO = 'FINALIZADO',
+  ABANDONADO = 'ABANDONADO'
+}
+
+export enum ResultadoEjecucion {
+  EXITOSO = 'EXITOSO',
+  ERROR_COMPILACION = 'ERROR_COMPILACION',
+  ERROR_EJECUCION = 'ERROR_EJECUCION',
+  TIMEOUT = 'TIMEOUT',
+  NO_EJECUTADO = 'NO_EJECUTADO'
+}
+
+export enum Rol {
+  ADMIN = 'ADMIN',
+  CANDIDATO = 'CANDIDATO'
+}
