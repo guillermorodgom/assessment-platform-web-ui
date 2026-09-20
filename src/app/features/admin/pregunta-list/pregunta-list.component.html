@@ -1,0 +1,237 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="p-4">
+  <p-breadcrumb [model]="breadcrumbItems" [home]="home" class="mb-3"></p-breadcrumb>
+
+  <p-toolbar styleClass="mb-3">
+    <ng-template pTemplate="left">
+      <div class="flex align-items-center gap-3">
+        <p-button label="Nueva Pregunta" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+        <p-button label="Vincular Pregunta" icon="pi pi-link" [outlined]="true" (onClick)="openVincular()"></p-button>
+        <p-chip *ngIf="cuestionario" [label]="cuestionario.nombre" icon="pi pi-book"></p-chip>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button icon="pi pi-refresh" [outlined]="true" pTooltip="Recargar" (onClick)="loadPreguntas()"></p-button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    [value]="preguntas"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    styleClass="p-datatable-sm p-datatable-striped"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="titulo">Titulo <p-sortIcon field="titulo"></p-sortIcon></th>
+        <th style="width: 150px">Tipo</th>
+        <th style="width: 120px">Lenguaje</th>
+        <th pSortableColumn="puntaje" style="width: 100px">Puntaje <p-sortIcon field="puntaje"></p-sortIcon></th>
+        <th style="width: 100px">Items</th>
+        <th style="width: 180px">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-p>
+      <tr>
+        <td>{{ p.titulo }}</td>
+        <td>
+          <p-tag [value]="getTipoLabel(p.tipoPregunta)" [severity]="getTipoSeverity(p.tipoPregunta)"></p-tag>
+        </td>
+        <td>{{ p.lenguajesPermitidos?.join(', ') || '-' }}</td>
+        <td class="text-center">
+          <p-chip [label]="p.puntaje + ' pts'" styleClass="text-sm"></p-chip>
+        </td>
+        <td class="text-center">
+          <span *ngIf="p.tipoPregunta === 'CODIGO'">{{ p.casosDePrueba?.length || 0 }} casos</span>
+          <span *ngIf="p.tipoPregunta !== 'CODIGO'">{{ p.opciones?.length || 0 }} opciones</span>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="success"
+                      pTooltip="Editar" (onClick)="openEdit(p)"></p-button>
+            <p-button icon="pi pi-link" [rounded]="true" [text]="true" severity="warning"
+                      pTooltip="Desvincular de este cuestionario" (onClick)="confirmDesvincular(p)"></p-button>
+            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                      pTooltip="Eliminar permanentemente" (onClick)="confirmDelete(p)"></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center p-4">
+          <i class="pi pi-inbox text-4xl text-500 mb-3" style="display: block"></i>
+          <span class="text-500">No hay preguntas. Crea la primera.</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Dialog crear/editar pregunta -->
+<p-dialog
+  [header]="editMode ? 'Editar Pregunta' : 'Nueva Pregunta'"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: '700px' }"
+  [draggable]="false"
+  [maximizable]="true"
+>
+  <div class="flex flex-column gap-3 pt-2">
+    <div class="flex flex-column gap-1">
+      <label for="titulo" class="font-semibold">Titulo *</label>
+      <input pInputText id="titulo" [(ngModel)]="titulo" placeholder="Titulo de la pregunta" />
+    </div>
+
+    <div class="flex flex-column gap-1">
+      <label for="desc" class="font-semibold">Descripcion</label>
+      <textarea pInputTextarea id="desc" [(ngModel)]="descripcion" rows="3"
+                placeholder="Descripcion o enunciado de la pregunta"></textarea>
+    </div>
+
+    <div class="grid">
+      <div class="col-12 md:col-4">
+        <label class="font-semibold mb-1 block">Tipo *</label>
+        <p-dropdown [options]="tipoOptions" [(ngModel)]="tipoPregunta"
+                    (onChange)="onTipoChange()" [style]="{ width: '100%' }"></p-dropdown>
+      </div>
+      <div class="col-12 md:col-4" *ngIf="isCodigo()">
+        <label class="font-semibold mb-1 block">Lenguajes *</label>
+        <p-multiSelect [options]="lenguajeOptions" [(ngModel)]="lenguajesPermitidos"
+                       placeholder="Seleccionar" [style]="{ width: '100%' }"></p-multiSelect>
+      </div>
+      <div class="col-12 md:col-4">
+        <label class="font-semibold mb-1 block">Puntaje *</label>
+        <p-inputNumber [(ngModel)]="puntaje" [min]="1" [max]="100" suffix=" pts"
+                       [style]="{ width: '100%' }"></p-inputNumber>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Opciones de respuesta -->
+    <div *ngIf="isOpcion()">
+      <div class="flex align-items-center justify-content-between mb-2">
+        <span class="font-semibold">Opciones de respuesta</span>
+        <p-button label="Agregar opcion" icon="pi pi-plus" [text]="true" size="small" (onClick)="addOpcion()"></p-button>
+      </div>
+      <div *ngFor="let op of opciones; let i = index" class="flex align-items-center gap-2 mb-2">
+        <input pInputText [(ngModel)]="op.texto" [placeholder]="'Opcion ' + (i + 1)" class="flex-grow-1" />
+        <p-checkbox [(ngModel)]="op.esCorrecta" [binary]="true" label="Correcta"
+                    (onChange)="onCorrectaChange(i)"></p-checkbox>
+        <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" size="small"
+                  (onClick)="removeOpcion(i)" [disabled]="opciones.length <= 2"></p-button>
+      </div>
+    </div>
+
+    <!-- Casos de prueba -->
+    <div *ngIf="isCodigo()">
+      <div class="flex align-items-center justify-content-between mb-2">
+        <span class="font-semibold">Casos de prueba</span>
+        <p-button label="Agregar caso" icon="pi pi-plus" [text]="true" size="small" (onClick)="addCaso()"></p-button>
+      </div>
+      <div *ngFor="let caso of casos; let i = index" class="p-3 border-round mb-2"
+           style="background: var(--surface-ground)">
+        <div class="flex align-items-center justify-content-between mb-2">
+          <span class="text-sm font-semibold">Caso {{ i + 1 }}</span>
+          <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" size="small"
+                    (onClick)="removeCaso(i)"></p-button>
+        </div>
+        <div class="grid">
+          <div class="col-6">
+            <label class="text-sm block mb-1">Input</label>
+            <textarea pInputTextarea [(ngModel)]="caso.input" rows="2" placeholder="Entrada"
+                      [style]="{ width: '100%' }"></textarea>
+          </div>
+          <div class="col-6">
+            <label class="text-sm block mb-1">Output esperado *</label>
+            <textarea pInputTextarea [(ngModel)]="caso.expectedOutput" rows="2" placeholder="Salida esperada"
+                      [style]="{ width: '100%' }"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="dialogVisible = false"></p-button>
+    <p-button label="Guardar" icon="pi pi-check" (onClick)="save()" [loading]="saving"></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog vincular preguntas -->
+<p-dialog
+  header="Vincular Preguntas Existentes"
+  [(visible)]="vincularDialogVisible"
+  [modal]="true"
+  [style]="{ width: '850px' }"
+  [draggable]="false"
+  [maximizable]="true"
+>
+  <p class="text-sm text-500 mt-0 mb-3">Selecciona preguntas para asociarlas a este cuestionario (sin duplicar).</p>
+
+  <p-table
+    [value]="preguntasDisponibles"
+    [loading]="loadingVincular"
+    [(selection)]="selectedPreguntas"
+    [paginator]="true"
+    [rows]="8"
+    styleClass="p-datatable-sm p-datatable-striped"
+    responsiveLayout="scroll"
+    dataKey="id"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 50px">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th pSortableColumn="titulo">Titulo <p-sortIcon field="titulo"></p-sortIcon></th>
+        <th style="width: 140px">Tipo</th>
+        <th style="width: 200px">Cuestionarios</th>
+        <th style="width: 90px">Puntaje</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-p>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="p"></p-tableCheckbox>
+        </td>
+        <td>{{ p.titulo }}</td>
+        <td>
+          <p-tag [value]="getTipoLabel(p.tipoPregunta)" [severity]="getTipoSeverity(p.tipoPregunta)"></p-tag>
+        </td>
+        <td>
+          <div class="flex flex-wrap gap-1">
+            <p-chip *ngFor="let c of p.cuestionarios" [label]="c.nombre" styleClass="text-xs"></p-chip>
+            <span *ngIf="!p.cuestionarios?.length" class="text-500">-</span>
+          </div>
+        </td>
+        <td class="text-center">
+          <p-chip [label]="p.puntaje + ' pts'" styleClass="text-sm"></p-chip>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center p-4">
+          <span class="text-500">No hay preguntas disponibles en otros cuestionarios.</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="vincularDialogVisible = false"></p-button>
+    <p-button label="Vincular seleccionadas" icon="pi pi-link" (onClick)="vincularSeleccionadas()"
+              [loading]="vinculando" [disabled]="selectedPreguntas.length === 0"
+              [badge]="selectedPreguntas.length > 0 ? '' + selectedPreguntas.length : undefined"></p-button>
+  </ng-template>
+</p-dialog>

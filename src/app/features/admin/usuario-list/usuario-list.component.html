@@ -1,0 +1,97 @@
+<p-toast></p-toast>
+
+<div class="p-4">
+  <p-breadcrumb [model]="breadcrumbItems" [home]="home" class="mb-3"></p-breadcrumb>
+
+  <p-toolbar styleClass="mb-3">
+    <ng-template pTemplate="left">
+      <p-button label="Nuevo Candidato" icon="pi pi-user-plus" (onClick)="openNew()"></p-button>
+      <p-tag class="ml-3" [value]="usuarios.length + ' usuarios'" severity="info"></p-tag>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button icon="pi pi-refresh" [outlined]="true" pTooltip="Recargar" (onClick)="loadUsuarios()"></p-button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    [value]="usuarios"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 25]"
+    [globalFilterFields]="['username', 'nombreCompleto', 'email']"
+    [sortField]="'username'"
+    [sortOrder]="1"
+    styleClass="p-datatable-sm p-datatable-striped"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="username">Username <p-sortIcon field="username"></p-sortIcon></th>
+        <th pSortableColumn="nombreCompleto">Nombre Completo <p-sortIcon field="nombreCompleto"></p-sortIcon></th>
+        <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+        <th style="width: 180px">Rol</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-u>
+      <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ u.nombreCompleto }}</td>
+        <td class="text-500">{{ u.email }}</td>
+        <td>
+          <div class="flex gap-1">
+            <p-tag *ngFor="let rol of u.roles" [value]="formatRol(rol)" [severity]="getRolSeverity(formatRol(rol))"></p-tag>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4" class="text-center p-4">
+          <i class="pi pi-users text-4xl text-500 mb-3" style="display: block"></i>
+          <span class="text-500">No hay usuarios registrados.</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Dialog crear candidato -->
+<p-dialog
+  header="Nuevo Candidato"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+  [draggable]="false"
+>
+  <div class="flex flex-column gap-3 pt-2">
+    <div class="flex flex-column gap-1">
+      <label for="username" class="font-semibold">Username *</label>
+      <input pInputText id="username" [(ngModel)]="username" placeholder="Username" />
+    </div>
+
+    <div class="flex flex-column gap-1">
+      <label for="password" class="font-semibold">Password *</label>
+      <p-password id="password" [(ngModel)]="password" [toggleMask]="true"
+                  [feedback]="false" placeholder="Password" styleClass="w-full"
+                  [inputStyle]="{ width: '100%' }"></p-password>
+    </div>
+
+    <div class="flex flex-column gap-1">
+      <label for="email" class="font-semibold">Email *</label>
+      <input pInputText id="email" [(ngModel)]="email" placeholder="email@ejemplo.com" type="email" />
+    </div>
+
+    <div class="flex flex-column gap-1">
+      <label for="nombreCompleto" class="font-semibold">Nombre Completo *</label>
+      <input pInputText id="nombreCompleto" [(ngModel)]="nombreCompleto" placeholder="Nombre completo" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="dialogVisible = false"></p-button>
+    <p-button label="Registrar" icon="pi pi-check" (onClick)="save()" [loading]="saving"></p-button>
+  </ng-template>
+</p-dialog>
