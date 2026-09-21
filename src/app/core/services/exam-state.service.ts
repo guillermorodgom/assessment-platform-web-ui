@@ -121,9 +121,10 @@ export class ExamStateService implements OnDestroy {
   private startTimer(fechaInicio: string, tiempoLimiteMinutos: number): void {
     this.timerSub?.unsubscribe();
 
-    // Calcular segundos restantes basado en hora del servidor (fechaInicio),
-    // no en Date.now() — evita manipulación del reloj del browser.
-    const startMs = new Date(fechaInicio).getTime();
+    // Forzar interpretación UTC: el backend envía LocalDateTime sin zona horaria,
+    // pero el servidor (ECS) corre en UTC. Sin la 'Z', JavaScript lo parsea como hora local del browser.
+    const normalized = fechaInicio.endsWith('Z') ? fechaInicio : fechaInicio + 'Z';
+    const startMs = new Date(normalized).getTime();
     const totalMs = tiempoLimiteMinutos * 60 * 1000;
     const elapsedMs = Date.now() - startMs;
     let remaining = Math.max(0, Math.floor((totalMs - elapsedMs) / 1000));
