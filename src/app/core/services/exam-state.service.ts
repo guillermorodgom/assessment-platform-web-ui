@@ -121,16 +121,20 @@ export class ExamStateService implements OnDestroy {
   private startTimer(fechaInicio: string, tiempoLimiteMinutos: number): void {
     this.timerSub?.unsubscribe();
 
-    const endTime = new Date(fechaInicio).getTime() + tiempoLimiteMinutos * 60 * 1000;
+    // Calcular segundos restantes basado en hora del servidor (fechaInicio),
+    // no en Date.now() — evita manipulación del reloj del browser.
+    const startMs = new Date(fechaInicio).getTime();
+    const totalMs = tiempoLimiteMinutos * 60 * 1000;
+    const elapsedMs = Date.now() - startMs;
+    let remaining = Math.max(0, Math.floor((totalMs - elapsedMs) / 1000));
 
-    const calcRemaining = () => Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-    this.secondsRemainingSubject.next(calcRemaining());
+    this.secondsRemainingSubject.next(remaining);
 
     this.timerSub = interval(1000).pipe(
-      map(() => calcRemaining()),
-      takeWhile(s => s > 0, true)
+      map(() => --remaining),
+      takeWhile(s => s >= 0, true)
     ).subscribe(seconds => {
-      this.secondsRemainingSubject.next(seconds);
+      this.secondsRemainingSubject.next(Math.max(0, seconds));
       if (seconds <= 0) {
         this.timerExpiredSubject.next(true);
       }
