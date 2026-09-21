@@ -9,7 +9,6 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { timeout, catchError, of } from 'rxjs';
-import { CompilerHttpService } from '../../../../core/services/compiler-http.service';
 import { IntentoHttpService } from '../../../../core/services/intento-http.service';
 import { ExamStateService } from '../../../../core/services/exam-state.service';
 import { PreguntaResponse, CompilerResponse, TestResult } from '../../../../core/models';
@@ -42,6 +41,8 @@ export class PreguntaCodigoComponent implements OnInit, OnChanges, AfterViewInit
   consoleError = '';
   testResults: TestResult[] = [];
   activeTabIndex = 0;
+  allTestsPassed = false;
+  passedCount = 0;
 
   private editorInstance: any;
 
@@ -53,10 +54,9 @@ export class PreguntaCodigoComponent implements OnInit, OnChanges, AfterViewInit
 
   lenguajeOptions: { label: string; value: LenguajeProgramacion }[] = [];
 
-  private readonly TIMEOUT_MS = 30000;
+  private readonly TIMEOUT_MS = 65000;
 
   constructor(
-    private compilerService: CompilerHttpService,
     private intentoService: IntentoHttpService,
     private examState: ExamStateService,
     private messageService: MessageService,
@@ -85,6 +85,8 @@ export class PreguntaCodigoComponent implements OnInit, OnChanges, AfterViewInit
     this.consoleOutput = '';
     this.consoleError = '';
     this.testResults = [];
+    this.allTestsPassed = false;
+    this.passedCount = 0;
     this.activeTabIndex = 0;
 
     // Filter dropdown to only allowed languages
@@ -148,15 +150,10 @@ export class PreguntaCodigoComponent implements OnInit, OnChanges, AfterViewInit
     this.consoleError = '';
     this.testResults = [];
 
-    const testCases = (this.pregunta.casosDePrueba || []).map(tc => ({
-      input: tc.input || '',
-      expectedOutput: tc.expectedOutput
-    }));
-
-    this.compilerService.execute({
+    this.intentoService.ejecutarCodigo(this.intentoId, {
+      preguntaId: this.pregunta.id,
       sourceCode: this.code,
-      language: this.selectedLanguage,
-      testCases
+      language: this.selectedLanguage
     }).pipe(
       timeout(this.TIMEOUT_MS),
       catchError(err => {
@@ -180,6 +177,8 @@ export class PreguntaCodigoComponent implements OnInit, OnChanges, AfterViewInit
       this.consoleOutput = result.output || '';
       this.consoleError = result.error || '';
       this.testResults = result.testResults || [];
+      this.passedCount = this.testResults.filter(t => t.passed).length;
+      this.allTestsPassed = this.testResults.length > 0 && this.passedCount === this.testResults.length;
       this.activeTabIndex = this.testResults.length > 0 ? 1 : 0;
     });
   }

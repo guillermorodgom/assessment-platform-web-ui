@@ -1,5 +1,3 @@
-<p-toast></p-toast>
-
 <!-- Question Statement — hero block -->
 <div class="enunciado-block">
   <div class="enunciado-header">
@@ -56,31 +54,28 @@
       </div>
     </p-tabPanel>
 
-    <p-tabPanel header="Casos de Prueba" *ngIf="pregunta.casosDePrueba?.length">
+    <p-tabPanel header="Casos de Prueba">
       <div *ngIf="testResults.length === 0" class="text-500 p-3">
         Ejecuta tu codigo para ver los resultados de los casos de prueba.
       </div>
 
-      <div *ngFor="let tr of testResults; let i = index"
-           class="test-case-result">
-        <div class="flex align-items-center justify-content-between mb-2">
-          <span class="font-semibold text-sm">Caso {{ i + 1 }}</span>
-          <p-tag [value]="tr.passed ? 'Passed' : 'Failed'"
-                 [severity]="tr.passed ? 'success' : 'danger'"
-                 [rounded]="true"></p-tag>
+      <div *ngIf="testResults.length > 0" class="test-summary p-3">
+        <div class="flex align-items-center gap-2 mb-3">
+          <i [class]="allTestsPassed ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+             [style.color]="allTestsPassed ? '#4ec9b0' : '#f44747'"
+             style="font-size: 1.4rem"></i>
+          <span class="font-semibold" [style.color]="allTestsPassed ? '#4ec9b0' : '#f44747'">
+            {{ passedCount }}/{{ testResults.length }} casos pasaron
+          </span>
         </div>
-        <div class="grid text-sm" style="font-family: monospace">
-          <div class="col-4">
-            <div class="text-500 mb-1">Input</div>
-            <div style="color: #e4e4e7">{{ tr.input || '(vacio)' }}</div>
-          </div>
-          <div class="col-4">
-            <div class="text-500 mb-1">Esperado</div>
-            <div style="color: #e4e4e7">{{ tr.expectedOutput }}</div>
-          </div>
-          <div class="col-4">
-            <div class="text-500 mb-1">Obtenido</div>
-            <div [style.color]="tr.passed ? '#4ec9b0' : '#f44747'">{{ tr.actualOutput || '(vacio)' }}</div>
+
+        <div *ngFor="let tr of testResults; let i = index"
+             class="test-case-result">
+          <div class="flex align-items-center justify-content-between">
+            <span class="font-semibold text-sm">Caso {{ i + 1 }}</span>
+            <p-tag [value]="tr.passed ? 'Passed' : 'Failed'"
+                   [severity]="tr.passed ? 'success' : 'danger'"
+                   [rounded]="true"></p-tag>
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import {
   RespuestaCandidatoResponse
 } from '../models/intento.model';
 import { PreguntaResponse } from '../models/pregunta.model';
+import { CompilerResponse } from '../models/compiler.model';
 
 @Injectable({ providedIn: 'root' })
 export class IntentoHttpService {
@@ -47,5 +48,9 @@ export class IntentoHttpService {
 
   getIntentosByCandidato(candidatoId: number): Observable<IntentoExamenResponse[]> {
     return this.http.get<IntentoExamenResponse[]>(`${this.apiUrl}/candidato/${candidatoId}`);
+  }
+
+  ejecutarCodigo(intentoId: number, request: { preguntaId: number; sourceCode: string; language: string }): Observable<CompilerResponse> {
+    return this.http.post<CompilerResponse>(`${this.apiUrl}/${intentoId}/ejecutar`, request);
   }
 }
